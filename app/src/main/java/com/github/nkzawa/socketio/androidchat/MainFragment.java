@@ -55,7 +55,7 @@ public class MainFragment extends Fragment {
         mSocket.on("alert received", onAlertReceived);
         mSocket.on("user joined", onUserJoined);
         mSocket.on("user left", onUserLeft);
-        mSocket.connect();
+        sock.establishConnection();
 
         startSignIn();
     }

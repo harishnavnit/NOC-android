@@ -8,21 +8,32 @@ import java.net.URISyntaxException;
 
 public class SocketConnection extends Application {
 
-    private Socket mSocket;
+    private Socket sock;
     private boolean connected;
-    {
-        try {
-            mSocket = IO.socket(Constants.SERVER_URL);
-            connected = true;
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            connected = false;
-            throw new RuntimeException(e);
+
+    public SocketConnection() {
+        if (!connected) establishConnection();
+    }
+
+    public boolean establishConnection() {
+        {
+            try {
+                sock = IO.socket(Constants.SERVER_URL);
+                sock.connect();
+                connected = true;
+                System.out.println("Connection established from SocketConnection");
+            } catch (URISyntaxException e) {
+                System.err.println("Failed to establish connection from SocketConnection");
+                e.printStackTrace();
+                connected = false;
+                throw new RuntimeException(e);
+            }
         }
+        return connected;
     }
 
     public Socket getSocket() {
-        return mSocket;
+        return sock;
     }
 
     public boolean isConnected() { return connected; }
