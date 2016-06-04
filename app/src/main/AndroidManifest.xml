@@ -10,11 +10,11 @@
         android:allowBackup="true"
         android:name=".SocketConnection"
         android:icon="@drawable/ic_launcher"
-        android:label="@string/app_name"
+        android:label="Proximity Notifier"
         android:theme="@style/AppTheme" >
         <activity
             android:name="com.github.nkzawa.socketio.androidchat.MainActivity"
-            android:label="@string/app_name" >
+            android:label="Proximity Notifier" >
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />

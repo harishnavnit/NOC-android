@@ -9,11 +9,14 @@ import java.net.URISyntaxException;
 public class SocketConnection extends Application {
 
     private Socket mSocket;
+    private boolean connected;
     {
         try {
             mSocket = IO.socket(Constants.SERVER_URL);
+            connected = true;
         } catch (URISyntaxException e) {
             e.printStackTrace();
+            connected = false;
             throw new RuntimeException(e);
         }
     }
@@ -21,4 +24,6 @@ public class SocketConnection extends Application {
     public Socket getSocket() {
         return mSocket;
     }
+
+    public boolean isConnected() { return connected; }
 }
