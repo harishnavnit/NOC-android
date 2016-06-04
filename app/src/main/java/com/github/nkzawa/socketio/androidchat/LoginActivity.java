@@ -23,8 +23,9 @@ import org.json.JSONObject;
 public class LoginActivity extends Activity {
 
     private EditText mUsernameView;
-
+    private EditText mPasswordView;
     private String mUsername;
+    private String mPassword;
 
     private Socket mSocket;
 
@@ -78,6 +79,7 @@ public class LoginActivity extends Activity {
 
         // Store values at the time of the login attempt.
         String username = mUsernameView.getText().toString().trim();
+        String password = mPasswordView.getText().toString().trim();
 
         // Check for a valid username.
         if (TextUtils.isEmpty(username)) {

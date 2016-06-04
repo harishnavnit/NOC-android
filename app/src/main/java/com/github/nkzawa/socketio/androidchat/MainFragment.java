@@ -37,15 +37,9 @@ import java.util.List;
 public class MainFragment extends Fragment {
 
     private static final int REQUEST_LOGIN = 0;
-
     private static final int TYPING_TIMER_LENGTH = 600;
 
-    private RecyclerView mMessagesView;
     private EditText mInputMessageView;
-    private List<Message> mMessages = new ArrayList<Message>();
-    private RecyclerView.Adapter mAdapter;
-    private boolean mTyping = false;
-    private Handler mTypingHandler = new Handler();
     private String mUsername;
     private Socket mSocket;
 
@@ -56,7 +50,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onAttach(Activity activity) {
         super.onAttach(activity);
-        mAdapter = new MessageAdapter(activity, mMessages);
     }
 
     @Override
@@ -69,11 +62,9 @@ public class MainFragment extends Fragment {
         mSocket = app.getSocket();
         mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-        mSocket.on("new message", onNewMessage);
+        mSocket.on("alert received", onAlertReceived);
         mSocket.on("user joined", onUserJoined);
         mSocket.on("user left", onUserLeft);
-        mSocket.on("typing", onTyping);
-        mSocket.on("stop typing", onStopTyping);
         mSocket.connect();
 
         startSignIn();
@@ -92,20 +83,14 @@ public class MainFragment extends Fragment {
         mSocket.disconnect();
         mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-        mSocket.off("new message", onNewMessage);
+        mSocket.off("new message", onAlertReceived);
         mSocket.off("user joined", onUserJoined);
         mSocket.off("user left", onUserLeft);
-        mSocket.off("typing", onTyping);
-        mSocket.off("stop typing", onStopTyping);
     }
 
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        mMessagesView = (RecyclerView) view.findViewById(R.id.messages);
-        mMessagesView.setLayoutManager(new LinearLayoutManager(getActivity()));
-        mMessagesView.setAdapter(mAdapter);
 
         mInputMessageView = (EditText) view.findViewById(R.id.message_input);
         mInputMessageView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
@@ -127,14 +112,6 @@ public class MainFragment extends Fragment {
             public void onTextChanged(CharSequence s, int start, int before, int count) {
                 if (null == mUsername) return;
                 if (!mSocket.connected()) return;
-
-                if (!mTyping) {
-                    mTyping = true;
-                    mSocket.emit("typing");
-                }
-
-                mTypingHandler.removeCallbacks(onTypingTimeout);
-                mTypingHandler.postDelayed(onTypingTimeout, TYPING_TIMER_LENGTH);
             }
 
             @Override
@@ -189,45 +166,15 @@ public class MainFragment extends Fragment {
     }
 
     private void addLog(String message) {
-        mMessages.add(new Message.Builder(Message.TYPE_LOG)
-                .message(message).build());
-        mAdapter.notifyItemInserted(mMessages.size() - 1);
-        scrollToBottom();
     }
 
     private void addParticipantsLog(int numUsers) {
         addLog(getResources().getQuantityString(R.plurals.message_participants, numUsers, numUsers));
     }
 
-    private void addMessage(String username, String message) {
-        mMessages.add(new Message.Builder(Message.TYPE_MESSAGE)
-                .username(username).message(message).build());
-        mAdapter.notifyItemInserted(mMessages.size() - 1);
-        scrollToBottom();
-    }
-
-    private void addTyping(String username) {
-        mMessages.add(new Message.Builder(Message.TYPE_ACTION)
-                .username(username).build());
-        mAdapter.notifyItemInserted(mMessages.size() - 1);
-        scrollToBottom();
-    }
-
-    private void removeTyping(String username) {
-        for (int i = mMessages.size() - 1; i >= 0; i--) {
-            Message message = mMessages.get(i);
-            if (message.getType() == Message.TYPE_ACTION && message.getUsername().equals(username)) {
-                mMessages.remove(i);
-                mAdapter.notifyItemRemoved(i);
-            }
-        }
-    }
-
     private void attemptSend() {
         if (null == mUsername) return;
         if (!mSocket.connected()) return;
-
-        mTyping = false;
 
         String message = mInputMessageView.getText().toString().trim();
         if (TextUtils.isEmpty(message)) {
@@ -236,7 +183,6 @@ public class MainFragment extends Fragment {
         }
 
         mInputMessageView.setText("");
-        addMessage(mUsername, message);
 
         // perform the sending message attempt.
         mSocket.emit("new message", message);
@@ -255,10 +201,6 @@ public class MainFragment extends Fragment {
         startSignIn();
     }
 
-    private void scrollToBottom() {
-        mMessagesView.scrollToPosition(mAdapter.getItemCount() - 1);
-    }
-
     private Emitter.Listener onConnectError = new Emitter.Listener() {
         @Override
         public void call(Object... args) {
@@ -272,7 +214,7 @@ public class MainFragment extends Fragment {
         }
     };
 
-    private Emitter.Listener onNewMessage = new Emitter.Listener() {
+    private Emitter.Listener onAlertReceived = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {
             getActivity().runOnUiThread(new Runnable() {
@@ -287,9 +229,6 @@ public class MainFragment extends Fragment {
                     } catch (JSONException e) {
                         return;
                     }
-
-                    removeTyping(username);
-                    addMessage(username, message);
                 }
             });
         }
@@ -336,57 +275,8 @@ public class MainFragment extends Fragment {
 
                     addLog(getResources().getString(R.string.message_user_left, username));
                     addParticipantsLog(numUsers);
-                    removeTyping(username);
                 }
             });
-        }
-    };
-
-    private Emitter.Listener onTyping = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject data = (JSONObject) args[0];
-                    String username;
-                    try {
-                        username = data.getString("username");
-                    } catch (JSONException e) {
-                        return;
-                    }
-                    addTyping(username);
-                }
-            });
-        }
-    };
-
-    private Emitter.Listener onStopTyping = new Emitter.Listener() {
-        @Override
-        public void call(final Object... args) {
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    JSONObject data = (JSONObject) args[0];
-                    String username;
-                    try {
-                        username = data.getString("username");
-                    } catch (JSONException e) {
-                        return;
-                    }
-                    removeTyping(username);
-                }
-            });
-        }
-    };
-
-    private Runnable onTypingTimeout = new Runnable() {
-        @Override
-        public void run() {
-            if (!mTyping) return;
-
-            mTyping = false;
-            mSocket.emit("stop typing");
         }
     };
 }

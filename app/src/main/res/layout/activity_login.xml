@@ -19,7 +19,7 @@
                 android:id="@+id/username_input"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:hint="@string/prompt_username"
+                android:hint="Username"
                 android:imeActionId="@+id/login"
                 android:imeActionLabel="@string/action_sign_in_short"
                 android:imeOptions="actionUnspecified"
@@ -27,13 +27,27 @@
                 android:maxLength="14"
                 android:maxLines="1"
                 android:singleLine="true"/>
-        <Button
+
+            <EditText
+                android:id="@+id/password_input"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Password"
+                android:imeActionId="@+id/login"
+                android:imeActionLabel="@string/action_sign_in_short"
+                android:imeOptions="actionUnspecified"
+                android:inputType="textPersonName"
+                android:maxLength="14"
+                android:maxLines="1"
+                android:singleLine="true" />
+
+            <Button
                 android:id="@+id/sign_in_button"
                 style="?android:textAppearanceSmall"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="16dp"
-                android:text="@string/action_sign_in"
+                android:text="Login"
                 android:textStyle="bold"/>
 
     </LinearLayout>
