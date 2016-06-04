@@ -46,6 +46,14 @@
                 android:layout_weight="0.98" />
 
             <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Locate"
+                android:id="@+id/locationButton"
+                android:layout_gravity="center_horizontal" />
+
+            <Button
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

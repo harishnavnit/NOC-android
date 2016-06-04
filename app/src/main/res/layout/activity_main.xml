@@ -10,5 +10,6 @@
             class="com.github.nkzawa.socketio.androidchat.MainFragment"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:id="@+id/mainFrag" />
+            android:id="@+id/mainFrag"
+        android:tag="fragment_main" />
 </FrameLayout>

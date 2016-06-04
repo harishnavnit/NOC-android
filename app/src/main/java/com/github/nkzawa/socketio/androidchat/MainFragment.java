@@ -2,6 +2,7 @@ package com.github.nkzawa.socketio.androidchat;
 
 import android.app.Activity;
 import android.content.Intent;
+import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
@@ -10,7 +11,10 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
@@ -26,6 +30,8 @@ public class MainFragment extends Fragment {
     private WebView wView;
     private Socket mSocket;
     private String mUsername, mPassword;
+    private Button locButton;
+    private TextView locationDisplay;
     private static final int REQUEST_LOGIN = 0;
 
     public MainFragment() {
@@ -67,7 +73,7 @@ public class MainFragment extends Fragment {
         mSocket.disconnect();
         mSocket.off(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.off(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-        mSocket.off("new message", onAlertReceived);
+        mSocket.off("alert received", onAlertReceived);
         mSocket.off("user joined", onUserJoined);
         mSocket.off("user left", onUserLeft);
     }
@@ -75,6 +81,29 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+
+        // Location TextView
+        locationDisplay = (TextView) view.findViewById(R.id.LatLngDisplay);
+
+        // Activate the WebView
+        wView = (WebView) view.findViewById(R.id.mapView);
+        wView.loadUrl(Constants.SERVER_URL);
+        WebSettings wSettings = wView.getSettings();
+        wSettings.setJavaScriptEnabled(true);
+
+        // Handle the location button
+        locButton = (Button) view.findViewById(R.id.locationButton);
+        locButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                /**String lat, lng;
+                LocationTracker lt = new LocationTracker(this);
+                Location current_location = lt.getLocation();
+                lat = Double.toString(current_location.getLatitude());
+                lng = Double.toString(current_location.getLongitude());*/
+                locationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
+            }
+        });
     }
 
     @Override
@@ -83,12 +112,14 @@ public class MainFragment extends Fragment {
         if (Activity.RESULT_OK != resultCode) {
             getActivity().finish();
             return;
+        } else {
+            System.err.println("Activity failed unexpectedly");
         }
 
         mUsername = data.getStringExtra("username");
         int numUsers = data.getIntExtra("numUsers", 1);
 
-        addLog(getResources().getString(R.string.message_welcome));
+        addLog("Welcome to proximity notifier");
         addParticipantsLog(numUsers);
     }
 
@@ -131,6 +162,7 @@ public class MainFragment extends Fragment {
 
     private void startSignIn() {
         mUsername = null;
+        mPassword = null;
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         startActivityForResult(intent, REQUEST_LOGIN);
     }
