@@ -34,11 +34,12 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        ChatApplication app = (ChatApplication) getApplication();
+        SocketConnection app = (SocketConnection) getApplication();
         mSocket = app.getSocket();
 
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username_input);
+        mPasswordView = (EditText) findViewById(R.id.password_input);
         mUsernameView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
@@ -76,6 +77,7 @@ public class LoginActivity extends Activity {
     private void attemptLogin() {
         // Reset errors.
         mUsernameView.setError(null);
+        mPasswordView.setError(null);
 
         // Store values at the time of the login attempt.
         String username = mUsernameView.getText().toString().trim();

@@ -6,7 +6,7 @@ import io.socket.client.Socket;
 
 import java.net.URISyntaxException;
 
-public class ChatApplication extends Application {
+public class SocketConnection extends Application {
 
     private Socket mSocket;
     {

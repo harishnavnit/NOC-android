@@ -14,25 +14,38 @@
             android:orientation="horizontal"
             android:gravity="center_vertical">
 
-        <EditText
-                android:id="@+id/message_input"
-                android:layout_width="0dp"
+        </LinearLayout>
+
+    <SlidingDrawer
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:content="@+id/linearLayout"
+        android:handle="@+id/button"
+        android:id="@+id/slidingDrawer"
+        android:layout_gravity="right">
+
+        <LinearLayout
+            android:id="@+id/linearLayout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:orientation="vertical"
+            android:weightSum="1">
+
+            <WebView
+                android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:hint="@string/prompt_message"
-                android:imeActionId="@+id/send"
-                android:imeActionLabel="@string/action_send"
-                android:imeOptions="actionSend"
-                android:inputType="text"
-                android:maxLines="1"
-                android:singleLine="true"/>
-        <ImageButton
-                android:id="@+id/send_button"
+                android:id="@+id/webView"
+                android:layout_gravity="center_horizontal"
+                android:layout_weight="0.87" />
+
+            <Button
+                android:id="@+id/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@android:drawable/ic_menu_send"
-                android:contentDescription="@string/action_send"/>
+                android:text="Handle"
+                android:layout_gravity="center_horizontal" />
+        </LinearLayout>
 
-    </LinearLayout>
+    </SlidingDrawer>
 
 </LinearLayout>

@@ -3,32 +3,19 @@ package com.github.nkzawa.socketio.androidchat;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.LinearLayoutManager;
-import android.support.v7.widget.RecyclerView;
-import android.text.Editable;
-import android.text.TextUtils;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.inputmethod.EditorInfo;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
+import android.webkit.WebView;
 import android.widget.Toast;
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.List;
 
 
 /**
@@ -36,12 +23,10 @@ import java.util.List;
  */
 public class MainFragment extends Fragment {
 
-    private static final int REQUEST_LOGIN = 0;
-    private static final int TYPING_TIMER_LENGTH = 600;
-
-    private EditText mInputMessageView;
-    private String mUsername;
+    private WebView wView;
     private Socket mSocket;
+    private String mUsername, mPassword;
+    private static final int REQUEST_LOGIN = 0;
 
     public MainFragment() {
         super();
@@ -55,11 +40,10 @@ public class MainFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setHasOptionsMenu(true);
 
-        ChatApplication app = (ChatApplication) getActivity().getApplication();
-        mSocket = app.getSocket();
+        SocketConnection sock = (SocketConnection) getActivity().getApplication();
+        mSocket = sock.getSocket();
         mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
         mSocket.on("alert received", onAlertReceived);
@@ -91,41 +75,6 @@ public class MainFragment extends Fragment {
     @Override
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
-
-        mInputMessageView = (EditText) view.findViewById(R.id.message_input);
-        mInputMessageView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView v, int id, KeyEvent event) {
-                if (id == R.id.send || id == EditorInfo.IME_NULL) {
-                    attemptSend();
-                    return true;
-                }
-                return false;
-            }
-        });
-        mInputMessageView.addTextChangedListener(new TextWatcher() {
-            @Override
-            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
-            }
-
-            @Override
-            public void onTextChanged(CharSequence s, int start, int before, int count) {
-                if (null == mUsername) return;
-                if (!mSocket.connected()) return;
-            }
-
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
-
-        ImageButton sendButton = (ImageButton) view.findViewById(R.id.send_button);
-        sendButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                attemptSend();
-            }
-        });
     }
 
     @Override
@@ -176,16 +125,8 @@ public class MainFragment extends Fragment {
         if (null == mUsername) return;
         if (!mSocket.connected()) return;
 
-        String message = mInputMessageView.getText().toString().trim();
-        if (TextUtils.isEmpty(message)) {
-            mInputMessageView.requestFocus();
-            return;
-        }
-
-        mInputMessageView.setText("");
-
         // perform the sending message attempt.
-        mSocket.emit("new message", message);
+        //mSocket.emit("new message", message);
     }
 
     private void startSignIn() {
