@@ -22,8 +22,10 @@ import org.json.JSONObject;
  */
 public class LoginActivity extends Activity {
 
+    private boolean loginStatus;
     private User user;
     private Socket mSocket;
+    private MainApplication app;
     private EditText mUsernameView, mPasswordView;
 
     @Override
@@ -31,7 +33,7 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        MainApplication app = (MainApplication) getApplication();
+        app = (MainApplication) getApplication();
         mSocket = app.getSocketConnection().getSocket();
 
         // Set up the login form.
@@ -41,7 +43,7 @@ public class LoginActivity extends Activity {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    attemptLogin();
+                    loginStatus = attemptLogin();
                     return true;
                 }
                 return false;
@@ -52,9 +54,15 @@ public class LoginActivity extends Activity {
         signInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                boolean loginStatus = attemptLogin();
-                if (loginStatus)
+                loginStatus = attemptLogin();
+                if (loginStatus) {
                     setContentView(R.layout.fragment_main);
+                    try {
+                        app.playAlert();
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+                }
                 else attemptLogin();
             }
         });

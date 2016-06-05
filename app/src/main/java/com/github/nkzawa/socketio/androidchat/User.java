@@ -8,12 +8,15 @@ import android.location.Location;
 public class User {
     private long loginHash;
     private Location userLocation;
+    private SocketConnection conn;
+    private boolean connectionActive;
     private String username, password;
 
     /**
      * Default constructor
      */
     User() {
+        connectionActive = conn.isConnected();
         username = "";
         password = "";
         loginHash = generateLoginHash(password);
@@ -30,6 +33,24 @@ public class User {
         loginHash = generateLoginHash(pass);
         MainApplication app = new MainApplication();
         userLocation = app.getLocationTracker().getLocation();
+        conn = new SocketConnection();
+        connectionActive = conn.isConnected();
+    }
+
+    /**
+     * Check wether the user is connected or not
+     * @return connectionActive
+     */
+    public boolean activeConnection() {
+        return connectionActive;
+    }
+
+    /**
+     * Set the state of the user's connection
+     * @param state
+     */
+    public void setActiveConnection(boolean state) {
+        connectionActive = state;
     }
 
     /**
