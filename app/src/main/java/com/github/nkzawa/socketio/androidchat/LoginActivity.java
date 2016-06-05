@@ -22,12 +22,10 @@ import org.json.JSONObject;
  */
 public class LoginActivity extends Activity {
 
-    private EditText mUsernameView;
-    private EditText mPasswordView;
-    private String mUsername;
-    private String mPassword;
-
+    private User user;
     private Socket mSocket;
+    private SocketConnection conn;
+    private EditText mUsernameView, mPasswordView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,8 +89,14 @@ public class LoginActivity extends Activity {
             mUsernameView.requestFocus();
             return;
         }
+        // Check for a valid password
+        if (TextUtils.isEmpty(password)) {
+            mPasswordView.setError("This field is required");
+            mPasswordView.requestFocus();
+            return;
+        }
 
-        mUsername = username;
+        user = new User(username, password);
 
         // perform the user login attempt.
         mSocket.emit("add user", username);
@@ -111,7 +115,7 @@ public class LoginActivity extends Activity {
             }
 
             Intent intent = new Intent();
-            intent.putExtra("username", mUsername);
+            intent.putExtra("username", user.getUserName());
             intent.putExtra("numUsers", numUsers);
             setResult(RESULT_OK, intent);
             finish();
