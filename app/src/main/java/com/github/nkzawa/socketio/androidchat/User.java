@@ -1,10 +1,13 @@
 package com.github.nkzawa.socketio.androidchat;
 
+import android.location.Location;
+
 /**
  * Created by harish on 04/06/16.
  */
 public class User {
     private long loginHash;
+    private Location userLocation;
     private String username, password;
 
     /**
@@ -14,6 +17,8 @@ public class User {
         username = "";
         password = "";
         loginHash = generateLoginHash(password);
+        MainApplication app = new MainApplication();
+        userLocation = app.getLocationTracker().getLocation();
     }
 
     /**
@@ -23,6 +28,8 @@ public class User {
         username = user;
         password = pass;
         loginHash = generateLoginHash(pass);
+        MainApplication app = new MainApplication();
+        userLocation = app.getLocationTracker().getLocation();
     }
 
     /**
@@ -79,5 +86,21 @@ public class User {
      */
     public long generateLoginHash(String key) {
         return key.hashCode();
+    }
+
+    /**
+     * Set the user's current location
+     * @param: Location
+     */
+    public void setUserLocation(Location loc) {
+        userLocation = loc;
+    }
+
+    /**
+     * Get the user's current location
+     * @return
+     */
+    public Location getUserLocation() {
+        return userLocation;
     }
 }

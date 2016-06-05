@@ -1,28 +1,24 @@
 package com.github.nkzawa.socketio.androidchat;
 
-import android.app.Application;
-import android.content.Context;
+import java.net.URISyntaxException;
 
 import io.socket.client.IO;
 import io.socket.client.Socket;
 
-import java.net.URISyntaxException;
+/**
+ * Created by harish on 05/06/16.
+ */
+public class SocketConnection {
+    private static Socket sock;
+    private static boolean connected;
 
-public class SocketConnection extends Application {
-
-    private Socket sock;
-    private boolean connected;
-    private LocationTracker loc;
-
-    public SocketConnection() {
-        if (!connected) establishConnection();
+    SocketConnection() {
+        if (! connected ) establishConnection();
     }
 
-    @Override
-    public Context getApplicationContext() {
-        return super.getApplicationContext();
+    public boolean isConnected() {
+        return connected;
     }
-
     public boolean establishConnection() {
         {
             try {
@@ -31,7 +27,7 @@ public class SocketConnection extends Application {
                 connected = true;
                 System.out.println("Connection established from SocketConnection");
             } catch (URISyntaxException e) {
-                System.err.println("Failed to establish connection from SocketConnection");
+                System.err.println("Failed to establish connection from MainApplication");
                 e.printStackTrace();
                 connected = false;
                 throw new RuntimeException(e);
@@ -40,22 +36,15 @@ public class SocketConnection extends Application {
         return connected;
     }
 
+    public Socket getSocket() {
+        return sock;
+    }
+
     public boolean closeConnection() {
         if (connected) {
             sock.disconnect();
             connected = false;
         }
         return connected;
-    }
-
-    public Socket getSocket() {
-        return sock;
-    }
-
-    public boolean isConnected() { return connected; }
-
-    public LocationTracker getLocationTracker() {
-        loc = new LocationTracker(this);
-        return loc;
     }
 }

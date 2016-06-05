@@ -31,8 +31,9 @@ public class MainFragment extends Fragment {
     private Socket mSocket;
     private String mUsername;
     private Button locButton;
-    private SocketConnection sock;
+    private MainApplication app;
     private TextView locationDisplay, userNameDisplay;
+    private static MainApplication mApp;
     private static final int REQUEST_LOGIN = 0;
 
     public MainFragment() {
@@ -49,14 +50,14 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        SocketConnection sock = (SocketConnection) getActivity().getApplication();
-        mSocket = sock.getSocket();
+        app = (MainApplication) getActivity().getApplication();
+        mSocket = app.getSocketConnection().getSocket();
         mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
         mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
         mSocket.on("alert received", onAlertReceived);
         mSocket.on("user joined", onUserJoined);
         mSocket.on("user left", onUserLeft);
-        sock.establishConnection();
+        app.getSocketConnection().establishConnection();
 
         startSignIn();
     }
@@ -99,7 +100,7 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String lat, lng;
-                LocationTracker lt = sock.getLocationTracker();
+                LocationTracker lt = app.getLocationTracker();
                 Location current_location = lt.getLocation();
                 lat = Double.toString(current_location.getLatitude());
                 lng = Double.toString(current_location.getLongitude());

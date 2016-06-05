@@ -31,8 +31,8 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        SocketConnection app = (SocketConnection) getApplication();
-        mSocket = app.getSocket();
+        MainApplication app = (MainApplication) getApplication();
+        mSocket = app.getSocketConnection().getSocket();
 
         // Set up the login form.
         mUsernameView = (EditText) findViewById(R.id.username_input);

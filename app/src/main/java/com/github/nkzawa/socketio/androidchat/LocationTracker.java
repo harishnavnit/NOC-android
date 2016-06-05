@@ -1,22 +1,17 @@
 package com.github.nkzawa.socketio.androidchat;
 
-import android.Manifest;
 import android.app.AlertDialog;
 import android.app.Service;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.pm.PackageManager;
 import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.provider.Settings;
-import android.support.v4.app.ActivityCompat;
 import android.util.Log;
-
-import com.github.nkzawa.socketio.androidchat.SocketConnection;
 
 import io.socket.client.Socket;
 
@@ -25,14 +20,14 @@ import io.socket.client.Socket;
  */
 public class LocationTracker extends Service implements LocationListener {
 
-    Location location;
-    double lat, lng;
-    boolean GPSEnabled = false, canGetLocation = false, networkEnabled = false;
-    private SocketConnection conn;
-    private final Context mContext;
+    private double lat, lng;
+    private Location location;
+    private boolean GPSEnabled = false, canGetLocation = false, networkEnabled = false;
+
     protected LocationManager lmanager;
-    private static final long MIN_DISTANCE_CHANGE_FOR_UPDATE = 1;   // 1 meter
-    private static final long MIN_TIME_BETWEEN_UPDATES = 1000 * 60 * 1; // 1 minute
+    private final Context mContext;
+    private static final long DISTANCE_UPDATE = 1;          // 1 meter
+    private static final long TIME_UPDATE = 1000 * 60 * 1;  // 1 minute
 
     public LocationTracker(Context context) {
         this.mContext = context;
@@ -54,10 +49,6 @@ public class LocationTracker extends Service implements LocationListener {
     @Override
     public IBinder onBind(Intent arg0) {
         return null;
-    }
-
-    public SocketConnection getConnection() {
-        return conn;
     }
 
     /**
@@ -97,9 +88,9 @@ public class LocationTracker extends Service implements LocationListener {
      */
     public void sendLocation() {
         Socket socket;
-        conn = new SocketConnection();
-        if (conn.isConnected()) {
-            socket =  conn.getSocket();
+        MainApplication app = new MainApplication();
+        if (app.getSocketConnection().isConnected()) {
+            socket =  app.getSocketConnection().getSocket();
             socket.emit("Latitude", getLatitude());
             socket.emit("Longitude", getLongitude());
         } else {
@@ -112,12 +103,7 @@ public class LocationTracker extends Service implements LocationListener {
      * @return Location
      */
     public Location getLocationFromGPS() {
-        lmanager.requestLocationUpdates(
-                lmanager.NETWORK_PROVIDER,
-                MIN_TIME_BETWEEN_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATE,
-                this
-        );
+        lmanager.requestLocationUpdates(lmanager.NETWORK_PROVIDER, TIME_UPDATE, DISTANCE_UPDATE, this);
         Log.d("GPS Enabled", "GPS Enabled");
         if (lmanager != null) {
             location = lmanager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
@@ -134,12 +120,7 @@ public class LocationTracker extends Service implements LocationListener {
      * @return Location
      */
     public Location getLocationFromNetwork() {
-        lmanager.requestLocationUpdates(
-                lmanager.GPS_PROVIDER,
-                MIN_TIME_BETWEEN_UPDATES,
-                MIN_DISTANCE_CHANGE_FOR_UPDATE,
-                this
-        );
+        lmanager.requestLocationUpdates(lmanager.GPS_PROVIDER, TIME_UPDATE, DISTANCE_UPDATE, this);
         Log.d("Network", "Network");
         if (lmanager != null) {
             location = lmanager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
