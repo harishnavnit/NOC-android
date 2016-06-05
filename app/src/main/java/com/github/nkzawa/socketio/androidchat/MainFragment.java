@@ -29,10 +29,10 @@ public class MainFragment extends Fragment {
 
     private WebView wView;
     private Socket mSocket;
-    private SocketConnection sock;
-    private String mUsername, mPassword;
+    private String mUsername;
     private Button locButton;
-    private TextView locationDisplay;
+    private SocketConnection sock;
+    private TextView locationDisplay, userNameDisplay;
     private static final int REQUEST_LOGIN = 0;
 
     public MainFragment() {
@@ -83,8 +83,9 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        // Location TextView
         locationDisplay = (TextView) view.findViewById(R.id.LatLngDisplay);
+        userNameDisplay = (TextView) view.findViewById(R.id.usernameDisplay);
+        userNameDisplay.setText(mUsername);
 
         // Activate the WebView
         wView = (WebView) view.findViewById(R.id.mapView);
@@ -163,7 +164,6 @@ public class MainFragment extends Fragment {
 
     private void startSignIn() {
         mUsername = null;
-        mPassword = null;
         Intent intent = new Intent(getActivity(), LoginActivity.class);
         startActivityForResult(intent, REQUEST_LOGIN);
     }
