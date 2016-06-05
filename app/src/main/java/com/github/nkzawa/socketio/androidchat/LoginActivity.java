@@ -24,7 +24,6 @@ public class LoginActivity extends Activity {
 
     private User user;
     private Socket mSocket;
-    private SocketConnection conn;
     private EditText mUsernameView, mPasswordView;
 
     @Override
@@ -63,7 +62,6 @@ public class LoginActivity extends Activity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         mSocket.off("login", onLogin);
     }
 

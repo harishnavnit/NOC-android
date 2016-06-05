@@ -29,6 +29,7 @@ public class MainFragment extends Fragment {
 
     private WebView wView;
     private Socket mSocket;
+    private SocketConnection sock;
     private String mUsername, mPassword;
     private Button locButton;
     private TextView locationDisplay;
@@ -96,11 +97,11 @@ public class MainFragment extends Fragment {
         locButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                /**String lat, lng;
-                LocationTracker lt = new LocationTracker(this);
+                String lat, lng;
+                LocationTracker lt = sock.getLocationTracker();
                 Location current_location = lt.getLocation();
                 lat = Double.toString(current_location.getLatitude());
-                lng = Double.toString(current_location.getLongitude());*/
+                lng = Double.toString(current_location.getLongitude());
                 locationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
             }
         });
@@ -187,6 +188,9 @@ public class MainFragment extends Fragment {
         }
     };
 
+    /**
+     * Display and/or sound an alert
+     */
     private Emitter.Listener onAlertReceived = new Emitter.Listener() {
         @Override
         public void call(final Object... args) {

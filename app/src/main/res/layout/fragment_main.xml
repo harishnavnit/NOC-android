@@ -12,17 +12,28 @@
             android:paddingLeft="@dimen/activity_horizontal_margin"
             android:paddingRight="@dimen/activity_horizontal_margin"
             android:orientation="horizontal"
-            android:gravity="center_vertical">
+            android:gravity="center_vertical"
+            android:weightSum="1">
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="33dp"
+                android:textAppearance="?android:attr/textAppearanceMedium"
+                android:text="John Doe"
+                android:id="@+id/usernameDisplay" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="63dp"
+                android:layout_weight="0.96" />
+
+            <TextView
+                android:layout_width="94dp"
+                android:layout_height="42dp"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Fetching ..."
+                android:id="@+id/LatLngDisplay" />
         </LinearLayout>
-
-    <TextView
-        android:layout_width="94dp"
-        android:layout_height="42dp"
-        android:textAppearance="?android:attr/textAppearanceSmall"
-        android:text="Fetching ..."
-        android:id="@+id/LatLngDisplay"
-        android:layout_gravity="right" />
 
     <SlidingDrawer
         android:layout_width="wrap_content"
