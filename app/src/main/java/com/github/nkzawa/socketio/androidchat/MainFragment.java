@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -16,6 +17,7 @@ import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
+
 import io.socket.client.Socket;
 import io.socket.emitter.Emitter;
 import org.json.JSONException;
@@ -27,12 +29,16 @@ import org.json.JSONObject;
  */
 public class MainFragment extends Fragment {
 
-    private WebView wView;
+    // Private data
     private Socket mSocket;
+    private WebView mWebView;
     private String mUsername;
-    private Button locButton;
-    private MainApplication app;
-    private TextView locationDisplay, userNameDisplay;
+
+    // UI widgets
+    private Button mLocationButton;
+    private TextView mLocationDisplay, mUserNameDisplay;
+
+    // Static data
     private static MainApplication mApp;
     private static final int REQUEST_LOGIN = 0;
 
@@ -50,15 +56,14 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        app = (MainApplication) getActivity().getApplication();
-        mSocket = app.getSocketConnection().getSocket();
-        mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
-        mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
-        mSocket.on("alert received", onAlertReceived);
-        mSocket.on("user joined", onUserJoined);
-        mSocket.on("user left", onUserLeft);
-        app.getSocketConnection().establishConnection();
-
+        mApp = (MainApplication) getActivity().getApplication();
+        mSocket = mApp.getSocketConnection().getSocket();
+            mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
+            mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
+            mSocket.on("alert received", onAlertReceived);
+            mSocket.on("user joined", onUserJoined);
+            mSocket.on("user left", onUserLeft);
+        mApp.getSocketConnection().establishConnection();
         startSignIn();
     }
 
@@ -84,27 +89,27 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        locationDisplay = (TextView) view.findViewById(R.id.LatLngDisplay);
-        userNameDisplay = (TextView) view.findViewById(R.id.usernameDisplay);
-        userNameDisplay.setText(mUsername);
+        mLocationDisplay = (TextView) view.findViewById(R.id.LatLngDisplay);
+        mUserNameDisplay = (TextView) view.findViewById(R.id.usernameDisplay);
+        mUserNameDisplay.setText(mUsername);
 
         // Activate the WebView
-        wView = (WebView) view.findViewById(R.id.mapView);
-        wView.loadUrl(Constants.SERVER_URL);
-        WebSettings wSettings = wView.getSettings();
-        wSettings.setJavaScriptEnabled(true);
+        mWebView = (WebView) view.findViewById(R.id.mapView);
+        mWebView.loadUrl(Constants.SERVER_URL);
+        WebSettings settings = mWebView.getSettings();
+        settings.setJavaScriptEnabled(true);
 
         // Handle the location button
-        locButton = (Button) view.findViewById(R.id.locationButton);
-        locButton.setOnClickListener(new View.OnClickListener() {
+        mLocationButton = (Button) view.findViewById(R.id.locationButton);
+        mLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 String lat, lng;
-                LocationTracker lt = app.getLocationTracker();
+                LocationTracker lt = mApp.getLocationTracker();
                 Location current_location = lt.getLocation(getActivity().getApplicationContext());
                 lat = Double.toString(current_location.getLatitude());
                 lng = Double.toString(current_location.getLongitude());
-                locationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
+                mLocationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
             }
         });
     }

@@ -1,0 +1,119 @@
+package com.github.nkzawa.socketio.androidchat;
+
+import android.content.BroadcastReceiver;
+import android.content.IntentSender;
+import android.location.Location;
+import android.net.Uri;
+import android.os.Bundle;
+
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+
+import java.util.Date;
+import java.text.DateFormat;
+
+/**
+ * Created by harish on 09/06/16.
+ */
+public class MyLocationTracker extends MainActivity {
+
+    protected double mLat, mLng;
+    protected Location mLocation;
+    private GoogleApiClient mClient;
+    private String mLastUpdateTime;
+    protected LocationRequest mLocationRequest;
+
+    public MyLocationTracker() {
+        mLocation = getLastKnownLocation();
+        mLastUpdateTime = "";
+        if (mLocation != null) {
+            mLat = mLocation.getLatitude();
+            mLng = mLocation.getLongitude();
+        }
+        createLocationRequest();
+        getCurrentLocationSettingsRequest();
+    }
+
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void getCurrentLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+        PendingResult<LocationSettingsResult> result =
+                LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+    }
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+
+        mClient.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Tracking Location", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse(null)
+        );
+        AppIndex.AppIndexApi.start(mClient, viewAction);
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Tracking Location", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse(null)
+        );
+        AppIndex.AppIndexApi.end(mClient, viewAction);
+        mClient.disconnect();
+    }
+
+    public LocationRequest getCurrentLocationRequest() {
+        return mLocationRequest;
+    }
+
+    public void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, (LocationListener)this
+        );
+    }
+
+    public void handleLocationChange(Location location) {
+        mLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+    }
+
+    public void stopLocationUpdates() {
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener)this);
+    }
+}
