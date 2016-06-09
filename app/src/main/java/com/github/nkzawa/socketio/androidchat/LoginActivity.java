@@ -25,7 +25,7 @@ public class LoginActivity extends Activity {
     private boolean loginStatus;
     private RemoteDevice remoteDevice;
     private Socket mSocket;
-    private MainApplication app;
+    private ApplicationManager app;
     private EditText mUsernameView, mPasswordView;
 
     @Override
@@ -33,7 +33,7 @@ public class LoginActivity extends Activity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        app = (MainApplication) getApplication();
+        app = (ApplicationManager) getApplication();
         mSocket = app.getSocketConnection().getSocket();
 
         // Set up the login form.

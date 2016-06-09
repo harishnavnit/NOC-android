@@ -1,186 +1,124 @@
 package com.github.nkzawa.socketio.androidchat;
 
-import android.app.AlertDialog;
-import android.app.Service;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
+import android.content.BroadcastReceiver;
+import android.content.IntentSender;
 import android.location.Location;
-import android.location.LocationListener;
-import android.location.LocationManager;
+import android.net.Uri;
 import android.os.Bundle;
-import android.os.IBinder;
-import android.provider.Settings;
-import android.util.Log;
 
-import io.socket.client.Socket;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
+import com.google.android.gms.common.api.PendingResult;
+import com.google.android.gms.common.api.ResultCallback;
+import com.google.android.gms.common.api.Status;
+import com.google.android.gms.location.LocationListener;
+import com.google.android.gms.location.LocationRequest;
+import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.location.LocationSettingsRequest;
+import com.google.android.gms.location.LocationSettingsResult;
+import com.google.android.gms.location.LocationSettingsStates;
+import com.google.android.gms.location.LocationSettingsStatusCodes;
+
+import java.util.Date;
+import java.text.DateFormat;
 
 /**
- * Created by harish on 29/05/16.
+ * Created by harish on 09/06/16.
  */
-public class LocationTracker extends Service implements LocationListener {
+public class LocationTracker extends MainActivity {
 
-    private double lat, lng;
-    private Location location;
-    private boolean GPSEnabled = false, canGetLocation = false, networkEnabled = false;
+    protected double mLat, mLng;
+    protected Location mLocation;
+    protected String mLastUpdateTime;
+    protected LocationRequest mLocationRequest;
 
-    protected LocationManager lmanager;
-    private final Context mContext;
-    private static final long DISTANCE_UPDATE = 1;          // 1 meter
-    private static final long TIME_UPDATE = 1000 * 60 * 1;  // 1 minute
+    public LocationTracker() {
+        mLocation = getLastKnownLocation();
+        mLastUpdateTime = "";
+        if (mLocation != null) {
+            mLat = mLocation.getLatitude();
+            mLng = mLocation.getLongitude();
+        }
+        createLocationRequest();
+        getCurrentLocationSettingsRequest();
+    }
 
-    public LocationTracker(Context context) {
-        mContext = context;
-        getLocation(mContext);
+    protected void createLocationRequest() {
+        mLocationRequest = new LocationRequest();
+        mLocationRequest.setInterval(10000);
+        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
+    }
+
+    protected void getCurrentLocationSettingsRequest() {
+        LocationSettingsRequest.Builder builder = new LocationSettingsRequest.Builder()
+                .addLocationRequest(mLocationRequest);
+        if ( mGoogleApiClient != null ) {
+            PendingResult<LocationSettingsResult> result =
+                    LocationServices.SettingsApi.checkLocationSettings(mGoogleApiClient, builder.build());
+        }
     }
 
     @Override
-    public void onProviderEnabled(String provider) { }
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
 
     @Override
-    public void onProviderDisabled(String provider) { }
+    public void onStart() {
+        super.onStart();
+
+        mGoogleApiClient.connect();
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Tracking Location", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse(null)
+        );
+        AppIndex.AppIndexApi.start(mGoogleApiClient, viewAction);
+    }
 
     @Override
-    public void onLocationChanged(Location location) { }
+    public void onStop() {
+        super.onStop();
 
-    @Override
-    public void onStatusChanged(String provider, int status, Bundle extras) { }
-
-    @Override
-    public IBinder onBind(Intent arg0) {
-        return null;
+        Action viewAction = Action.newAction(
+                Action.TYPE_VIEW, // TODO: choose an action type.
+                "Tracking Location", // TODO: Define a title for the content shown.
+                // TODO: If you have web page content that matches this app activity's content,
+                // make sure this auto-generated web page URL is correct.
+                // Otherwise, set the URL to null.
+                Uri.parse(null)
+        );
+        AppIndex.AppIndexApi.end(mGoogleApiClient, viewAction);
+        mGoogleApiClient.disconnect();
     }
 
-    public Context getContext() {
-        return mContext;
+    public LocationRequest getCurrentLocationRequest() {
+        return mLocationRequest;
     }
 
-    /**
-     * Check for the best network provider
-     * @return (boolean) LocationTracker::canGetLocation
-     */
-    public boolean canGetLocation() {
-        return this.canGetLocation;
+    public void startLocationUpdates() {
+        LocationServices.FusedLocationApi.requestLocationUpdates(
+                mGoogleApiClient, mLocationRequest, (LocationListener)this
+        );
     }
 
-    /**
-     * Returns the location using available resources
-     * @return Location
-     */
-    public Location getLocation(Context context) {
-        try {
-            lmanager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
-            GPSEnabled = lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER);
-            networkEnabled = lmanager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
-
-            if (!(GPSEnabled || networkEnabled)) {
-                // No way to get location
-            } else {
-                this.canGetLocation = true;
-                if (GPSEnabled)     location = getLocationFromGPS();
-                if (networkEnabled) location = getLocationFromNetwork();
-            }
-        } catch (Exception e) {
-            System.err.println("Failed to fetch device location");
-            e.printStackTrace();
-        }
-        return location;
+    public void handleLocationChange(Location location) {
+        mLocation = location;
+        mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
     }
 
-    /**
-     * Emitt current latitude and longitude to the server
-     */
-    public void sendLocation() {
-        Socket socket;
-        MainApplication app = new MainApplication();
-        if (app.getSocketConnection().isConnected()) {
-            socket =  app.getSocketConnection().getSocket();
-            socket.emit("Latitude", getLatitude());
-            socket.emit("Longitude", getLongitude());
-        } else {
-            System.err.println("Connection not found");
-        }
+    public void stopLocationUpdates() {
+        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener)this);
     }
 
-    /**
-     * Use GPS to return location
-     * @return Location
-     */
-    public Location getLocationFromGPS() {
-        lmanager.requestLocationUpdates(lmanager.NETWORK_PROVIDER, TIME_UPDATE, DISTANCE_UPDATE, this);
-        Log.d("GPS Enabled", "GPS Enabled");
-        if (lmanager != null) {
-            location = lmanager.getLastKnownLocation(LocationManager.GPS_PROVIDER);
-            if (location != null) {
-                lat = location.getLatitude();
-                lng = location.getLongitude();
-            }
-        }
-        return location;
-    }
-
-    /**
-     * Use the Network provider to return location
-     * @return Location
-     */
-    public Location getLocationFromNetwork() {
-        lmanager.requestLocationUpdates(lmanager.GPS_PROVIDER, TIME_UPDATE, DISTANCE_UPDATE, this);
-        Log.d("Network", "Network");
-        if (lmanager != null) {
-            location = lmanager.getLastKnownLocation(LocationManager.NETWORK_PROVIDER);
-            if (location != null) {
-                lat = location.getLatitude();
-                lng = location.getLongitude();
-            }
-        }
-        return location;
-    }
-
-    /**
-     * Get the current latitude
-     * @return Location.latitude
-     */
-    public double getLatitude() {
-        if (location != null) {
-            lat = location.getLatitude();
-        }
-        return lat;
-    }
-
-    /**
-     * Get the current longitude
-     * @return Location.longitude
-     */
-    public double getLongitude() {
-        if (location != null) {
-            lng = location.getLongitude();
-        }
-        return lng;
-    }
-
-    /**
-     * Show a dialog prompting the user to enable GPS
-     */
-    public void showSettingsAlert() {
-        AlertDialog.Builder alertDialog = new AlertDialog.Builder(mContext);
-        alertDialog.setTitle("GPS settings");
-        alertDialog.setMessage("Would you like to enable GPS ?");
-
-        alertDialog.setPositiveButton("Settings", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                mContext.startActivity(intent);
-            }
-        });
-
-        alertDialog.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            @Override
-            public void onClick(DialogInterface dialog, int which) {
-                dialog.cancel();
-            }
-        });
-
-        alertDialog.show();
+    public Location getCurrentLocation() {
+        return mLocation;
     }
 }

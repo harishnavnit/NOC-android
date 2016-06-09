@@ -6,19 +6,14 @@ import android.media.Ringtone;
 import android.media.RingtoneManager;
 import android.net.Uri;
 
-import io.socket.client.IO;
-import io.socket.client.Socket;
+public class ApplicationManager extends Application {
 
-import java.net.URISyntaxException;
+    private static SocketConnection mSocketConnection;
+    private static LocationTracker mLocationTracker;
 
-public class MainApplication extends Application {
-
-    private static LocationTracker loc;
-    private static SocketConnection sConn;
-
-    public MainApplication() {
-        loc = new LocationTracker(this);
-        sConn = new SocketConnection();
+    public ApplicationManager() {
+        mLocationTracker = new LocationTracker();
+        mSocketConnection = new SocketConnection();
     }
 
     @Override
@@ -27,12 +22,11 @@ public class MainApplication extends Application {
     }
 
     public LocationTracker getLocationTracker() {
-        loc = new LocationTracker(this);
-        return loc;
+        return mLocationTracker;
     }
 
     public SocketConnection getSocketConnection() {
-        return sConn;
+        return mSocketConnection;
     }
 
     public void displayAlert() {

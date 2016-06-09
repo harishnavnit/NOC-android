@@ -21,9 +21,8 @@ public class RemoteDevice {
         username = "";
         password = "";
         loginHash = generateLoginHash(password);
-        MainApplication app = new MainApplication();
-        Context currentContext = app.getLocationTracker().getContext();
-        userLocation = app.getLocationTracker().getLocation(currentContext);
+        ApplicationManager app = new ApplicationManager();
+        userLocation = app.getLocationTracker().getCurrentLocation();
     }
 
     /**
@@ -33,9 +32,8 @@ public class RemoteDevice {
         username = user;
         password = pass;
         loginHash = generateLoginHash(pass);
-        MainApplication app = new MainApplication();
-        Context currentContext = app.getLocationTracker().getContext();
-        userLocation = app.getLocationTracker().getLocation(currentContext);
+        ApplicationManager app = new ApplicationManager();
+        userLocation = app.getLocationTracker().getCurrentLocation();
         conn = new SocketConnection();
         connectionActive = conn.isConnected();
     }

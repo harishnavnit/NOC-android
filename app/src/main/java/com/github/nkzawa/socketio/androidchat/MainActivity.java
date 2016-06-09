@@ -3,9 +3,7 @@ package com.github.nkzawa.socketio.androidchat;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
-import android.app.Notification;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 
 import com.google.android.gms.appindexing.Action;
 import com.google.android.gms.appindexing.AppIndex;
@@ -14,12 +12,10 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.common.api.GoogleApiClient.OnConnectionFailedListener;
 import com.google.android.gms.drive.Drive;
 import com.google.android.gms.location.LocationListener;
-import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.location.LocationSettingsResult;
 
 
-public class MainActivity extends ActionBarActivity implements
+public class MainActivity extends AppCompatActivity implements
         GoogleApiClient.ConnectionCallbacks, OnConnectionFailedListener, LocationListener {
 
     /**
@@ -29,7 +25,7 @@ public class MainActivity extends ActionBarActivity implements
     private boolean mRequestingLocationUpdates;
     protected Location mLastLocation;
     protected GoogleApiClient mGoogleApiClient;
-    private MyLocationTracker mMyLocationTracker;
+    private LocationTracker mLocationTracker;
 
     private static String   LOCATION_KEY,
                             LAST_UPDATED_TIME_STRING_KEY,
@@ -44,12 +40,12 @@ public class MainActivity extends ActionBarActivity implements
             if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
                 mRequestingLocationUpdates = savedInstanceState.getBoolean(REQUESTING_LOCATION_UPDATES_KEY);
             }
-        }
-        if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
-            mMyLocationTracker.mLocation = savedInstanceState.getParcelable(LOCATION_KEY);
-        }
-        if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
-            mMyLocationTracker.mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
+            if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
+                mLocationTracker.mLocation = savedInstanceState.getParcelable(LOCATION_KEY);
+            }
+            if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
+                mLocationTracker.mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
+            }
         }
         //updateUi();
     }
@@ -62,15 +58,18 @@ public class MainActivity extends ActionBarActivity implements
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-        updateValuesFromBundle(savedInstanceState);
 
-        // Create a Google API instance
-        mGoogleApiClient = new GoogleApiClient.Builder(this)
-                                .enableAutoManage(this, this)
-                                .addApi(Drive.API).addScope(Drive.SCOPE_FILE)
-                                .addOnConnectionFailedListener(this)
-                                .build();
-        mMyLocationTracker = new MyLocationTracker();
+        if (mGoogleApiClient == null) {
+            // Create a Google API instance
+            mGoogleApiClient = new GoogleApiClient.Builder(this)
+                    .enableAutoManage(this, this)
+                    .addApi(Drive.API).addScope(Drive.SCOPE_FILE)
+                    .addOnConnectionFailedListener(this)
+                    .build();
+        }
+
+        mLocationTracker = new LocationTracker();
+        updateValuesFromBundle(savedInstanceState);
     }
 
     @Override
@@ -78,15 +77,18 @@ public class MainActivity extends ActionBarActivity implements
         super.onStart();
         mGoogleApiClient.connect();
 
+        /**
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
                 "Proximity Notifier", // TODO: Define a title for the content shown.
                 // TODO: If you have web page content that matches this app activity's content,
                 // make sure this auto-generated web page URL is correct.
                 // Otherwise, set the URL to null.
-                Uri.parse(null)
+                Uri.parse("NULL")
         );
+
         AppIndex.AppIndexApi.start(mGoogleApiClient, viewAction);
+        */
     }
 
     @Override
@@ -95,6 +97,7 @@ public class MainActivity extends ActionBarActivity implements
 
         // ATTENTION: This was auto-generated to implement the App Indexing API.
         // See https://g.co/AppIndexing/AndroidStudio for more information.
+        /**
         Action viewAction = Action.newAction(
                 Action.TYPE_VIEW, // TODO: choose an action type.
                 "Proximity Notifier", // TODO: Define a title for the content shown.
@@ -104,20 +107,21 @@ public class MainActivity extends ActionBarActivity implements
                 Uri.parse(null)
         );
         AppIndex.AppIndexApi.end(mGoogleApiClient, viewAction);
+        */
         mGoogleApiClient.disconnect();
     }
 
     @Override
     public void onPause() {
         super.onPause();
-        mMyLocationTracker.stopLocationUpdates();
+        mLocationTracker.stopLocationUpdates();
     }
 
     @Override
     public void onResume() {
         super.onResume();
         if (mGoogleApiClient.isConnected() /*&& mRequestingLocationUpdates*/) {
-            mMyLocationTracker.startLocationUpdates();
+            mLocationTracker.startLocationUpdates();
         }
     }
 
@@ -141,7 +145,15 @@ public class MainActivity extends ActionBarActivity implements
 
     @Override
     public void onLocationChanged(Location location) {
-        mMyLocationTracker.handleLocationChange(location);
+        mLocationTracker.handleLocationChange(location);
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle savedInstanceState) {
+        savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
+        savedInstanceState.putParcelable(LOCATION_KEY, mLocationTracker.mLocation);
+        savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, mLocationTracker.mLastUpdateTime);
+        super.onSaveInstanceState(savedInstanceState);
     }
 
     public GoogleApiClient getApiClient() {
@@ -150,12 +162,5 @@ public class MainActivity extends ActionBarActivity implements
 
     public Location getLastKnownLocation() {
         return mLastLocation;
-    }
-
-    public void onSaveInstanceState(Bundle savedInstanceState) {
-        savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
-        savedInstanceState.putParcelable(LOCATION_KEY, mMyLocationTracker.mLocation);
-        savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, mMyLocationTracker.mLastUpdateTime);
-        super.onSaveInstanceState(savedInstanceState);
     }
 }

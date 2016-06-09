@@ -8,7 +8,7 @@
 
     <application
         android:allowBackup="true"
-        android:name=".MainApplication"
+        android:name=".ApplicationManager"
         android:icon="@drawable/ic_launcher"
         android:label="Proximity Notifier"
         android:theme="@style/AppTheme" >

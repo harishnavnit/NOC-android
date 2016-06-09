@@ -27,7 +27,7 @@ public class SocketConnection {
                 connected = true;
                 System.out.println("Connection established from SocketConnection");
             } catch (URISyntaxException e) {
-                System.err.println("Failed to establish connection from MainApplication");
+                System.err.println("Failed to establish connection from ApplicationManager");
                 e.printStackTrace();
                 connected = false;
                 throw new RuntimeException(e);

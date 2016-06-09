@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentActivity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
@@ -39,7 +38,7 @@ public class MainFragment extends Fragment {
     private TextView mLocationDisplay, mUserNameDisplay;
 
     // Static data
-    private static MainApplication mApp;
+    private static ApplicationManager mApp;
     private static final int REQUEST_LOGIN = 0;
 
     public MainFragment() {
@@ -56,7 +55,7 @@ public class MainFragment extends Fragment {
         super.onCreate(savedInstanceState);
         setHasOptionsMenu(true);
 
-        mApp = (MainApplication) getActivity().getApplication();
+        mApp = (ApplicationManager) getActivity().getApplication();
         mSocket = mApp.getSocketConnection().getSocket();
             mSocket.on(Socket.EVENT_CONNECT_ERROR, onConnectError);
             mSocket.on(Socket.EVENT_CONNECT_TIMEOUT, onConnectError);
@@ -105,8 +104,8 @@ public class MainFragment extends Fragment {
             @Override
             public void onClick(View v) {
                 String lat, lng;
-                LocationTracker lt = mApp.getLocationTracker();
-                Location current_location = lt.getLocation(getActivity().getApplicationContext());
+                LocationTracker mlt = mApp.getLocationTracker();
+                Location current_location = mlt.getCurrentLocation();
                 lat = Double.toString(current_location.getLatitude());
                 lng = Double.toString(current_location.getLongitude());
                 mLocationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
