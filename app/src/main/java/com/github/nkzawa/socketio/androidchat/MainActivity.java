@@ -31,6 +31,14 @@ public class MainActivity extends ActionBarActivity implements
     protected GoogleApiClient mGoogleApiClient;
     private MyLocationTracker mMyLocationTracker;
 
+    private static String   LOCATION_KEY,
+                            LAST_UPDATED_TIME_STRING_KEY,
+                            REQUESTING_LOCATION_UPDATES_KEY;
+
+    /**
+     * Start an activity from an already present Bundle state
+     * @param savedInstanceState
+     */
     private void updateValuesFromBundle(Bundle savedInstanceState) {
         if (savedInstanceState != null) {
             if (savedInstanceState.keySet().contains(REQUESTING_LOCATION_UPDATES_KEY)) {
@@ -41,14 +49,15 @@ public class MainActivity extends ActionBarActivity implements
             mMyLocationTracker.mLocation = savedInstanceState.getParcelable(LOCATION_KEY);
         }
         if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
-            mMyLocationTracker.mLastUpdateTime;
+            mMyLocationTracker.mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
         }
-        updateUi();
+        //updateUi();
     }
 
-    private void updateUi() {
+    //private void updateUi() {
 
-    }
+    //}
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -144,11 +153,9 @@ public class MainActivity extends ActionBarActivity implements
     }
 
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        //savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
+        savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
         savedInstanceState.putParcelable(LOCATION_KEY, mMyLocationTracker.mLocation);
         savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, mMyLocationTracker.mLastUpdateTime);
         super.onSaveInstanceState(savedInstanceState);
     }
-
-
 }

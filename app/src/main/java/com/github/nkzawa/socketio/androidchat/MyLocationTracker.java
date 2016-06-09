@@ -31,7 +31,7 @@ public class MyLocationTracker extends MainActivity {
     protected double mLat, mLng;
     protected Location mLocation;
     private GoogleApiClient mClient;
-    private String mLastUpdateTime;
+    protected String mLastUpdateTime;
     protected LocationRequest mLocationRequest;
 
     public MyLocationTracker() {
