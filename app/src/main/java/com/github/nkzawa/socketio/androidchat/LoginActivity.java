@@ -23,7 +23,7 @@ import org.json.JSONObject;
 public class LoginActivity extends Activity {
 
     private boolean loginStatus;
-    private User user;
+    private RemoteDevice remoteDevice;
     private Socket mSocket;
     private MainApplication app;
     private EditText mUsernameView, mPasswordView;
@@ -105,10 +105,10 @@ public class LoginActivity extends Activity {
             return false;
         }
 
-        user = new User(username, password);
+        remoteDevice = new RemoteDevice(username, password);
 
-        // perform the user login attempt.
-        mSocket.emit("add user", username);
+        // perform the remoteDevice login attempt.
+        mSocket.emit("add remoteDevice", username);
         return true;
     }
 
@@ -125,7 +125,7 @@ public class LoginActivity extends Activity {
             }
 
             Intent intent = new Intent();
-            intent.putExtra("username", user.getUserName());
+            intent.putExtra("username", remoteDevice.getUserName());
             intent.putExtra("numUsers", numUsers);
             setResult(RESULT_OK, intent);
             finish();

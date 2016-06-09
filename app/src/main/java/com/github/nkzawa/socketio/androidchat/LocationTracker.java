@@ -30,8 +30,8 @@ public class LocationTracker extends Service implements LocationListener {
     private static final long TIME_UPDATE = 1000 * 60 * 1;  // 1 minute
 
     public LocationTracker(Context context) {
-        this.mContext = context;
-        getLocation();
+        mContext = context;
+        getLocation(mContext);
     }
 
     @Override
@@ -51,6 +51,10 @@ public class LocationTracker extends Service implements LocationListener {
         return null;
     }
 
+    public Context getContext() {
+        return mContext;
+    }
+
     /**
      * Check for the best network provider
      * @return (boolean) LocationTracker::canGetLocation
@@ -63,9 +67,9 @@ public class LocationTracker extends Service implements LocationListener {
      * Returns the location using available resources
      * @return Location
      */
-    public Location getLocation() {
+    public Location getLocation(Context context) {
         try {
-            lmanager = (LocationManager) this.getSystemService(LOCATION_SERVICE);
+            lmanager = (LocationManager) getApplicationContext().getSystemService(LOCATION_SERVICE);
             GPSEnabled = lmanager.isProviderEnabled(LocationManager.GPS_PROVIDER);
             networkEnabled = lmanager.isProviderEnabled(LocationManager.NETWORK_PROVIDER);
 

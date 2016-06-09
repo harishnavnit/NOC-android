@@ -1,11 +1,12 @@
 package com.github.nkzawa.socketio.androidchat;
 
+import android.content.Context;
 import android.location.Location;
 
 /**
  * Created by harish on 04/06/16.
  */
-public class User {
+public class RemoteDevice {
     private long loginHash;
     private Location userLocation;
     private SocketConnection conn;
@@ -15,24 +16,26 @@ public class User {
     /**
      * Default constructor
      */
-    User() {
+    RemoteDevice() {
         connectionActive = conn.isConnected();
         username = "";
         password = "";
         loginHash = generateLoginHash(password);
         MainApplication app = new MainApplication();
-        userLocation = app.getLocationTracker().getLocation();
+        Context currentContext = app.getLocationTracker().getContext();
+        userLocation = app.getLocationTracker().getLocation(currentContext);
     }
 
     /**
      * Multiple argument constructor
      */
-    User(String user, String pass) {
+    RemoteDevice(String user, String pass) {
         username = user;
         password = pass;
         loginHash = generateLoginHash(pass);
         MainApplication app = new MainApplication();
-        userLocation = app.getLocationTracker().getLocation();
+        Context currentContext = app.getLocationTracker().getContext();
+        userLocation = app.getLocationTracker().getLocation(currentContext);
         conn = new SocketConnection();
         connectionActive = conn.isConnected();
     }

@@ -101,7 +101,7 @@ public class MainFragment extends Fragment {
             public void onClick(View v) {
                 String lat, lng;
                 LocationTracker lt = app.getLocationTracker();
-                Location current_location = lt.getLocation();
+                Location current_location = lt.getLocation(getActivity().getApplicationContext());
                 lat = Double.toString(current_location.getLatitude());
                 lng = Double.toString(current_location.getLongitude());
                 locationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
