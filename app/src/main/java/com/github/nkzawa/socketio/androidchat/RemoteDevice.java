@@ -9,6 +9,7 @@ import android.location.Location;
 public class RemoteDevice {
     private long loginHash;
     private Location userLocation;
+    protected LocationTracker mLocationTracker;
     private SocketConnection conn;
     private boolean connectionActive;
     private String username, password;
@@ -17,25 +18,24 @@ public class RemoteDevice {
      * Default constructor
      */
     RemoteDevice() {
+        conn = new SocketConnection();
         connectionActive = conn.isConnected();
-        username = "";
-        password = "";
+        username = "";  password = "";
         loginHash = generateLoginHash(password);
-        ApplicationManager app = new ApplicationManager();
-        userLocation = app.getLocationTracker().getCurrentLocation();
+        mLocationTracker = MainActivity.mLocationTracker;
+        userLocation = mLocationTracker.mCurrentLocation;
     }
 
     /**
      * Multiple argument constructor
      */
     RemoteDevice(String user, String pass) {
-        username = user;
-        password = pass;
-        loginHash = generateLoginHash(pass);
-        ApplicationManager app = new ApplicationManager();
-        userLocation = app.getLocationTracker().getCurrentLocation();
         conn = new SocketConnection();
         connectionActive = conn.isConnected();
+        username = user;    password = pass;
+        loginHash = generateLoginHash(pass);
+        mLocationTracker = MainActivity.mLocationTracker;
+        userLocation = mLocationTracker.mCurrentLocation;
     }
 
     /**

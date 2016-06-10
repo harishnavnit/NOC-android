@@ -9,20 +9,14 @@ import android.net.Uri;
 public class ApplicationManager extends Application {
 
     private static SocketConnection mSocketConnection;
-    private static LocationTracker mLocationTracker;
 
     public ApplicationManager() {
-        mLocationTracker = new LocationTracker();
         mSocketConnection = new SocketConnection();
     }
 
     @Override
     public Context getApplicationContext() {
         return super.getApplicationContext();
-    }
-
-    public LocationTracker getLocationTracker() {
-        return mLocationTracker;
     }
 
     public SocketConnection getSocketConnection() {

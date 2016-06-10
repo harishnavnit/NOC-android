@@ -3,6 +3,7 @@ package com.github.nkzawa.socketio.androidchat;
 import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
 import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.View;
@@ -20,7 +21,7 @@ import org.json.JSONObject;
 /**
  * A login screen that offers login via username.
  */
-public class LoginActivity extends Activity {
+public class LoginActivity extends FragmentActivity {
 
     private boolean loginStatus;
     private RemoteDevice remoteDevice;

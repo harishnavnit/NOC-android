@@ -28,10 +28,10 @@ public class MainActivity extends AppCompatActivity implements
 
     protected static final String TAG = "location-updates";
 
-    protected Location mLastLocation;
-    protected LocationTracker mLocationTracker;
-    protected GoogleApiClient mGoogleApiClient;
-    protected boolean mRequestingLocationUpdates;
+    protected static Location mLastLocation;
+    protected static LocationTracker mLocationTracker;
+    protected static GoogleApiClient mGoogleApiClient;
+    protected static boolean mRequestingLocationUpdates;
 
     // Keys for storing activity states in bundle
     protected final static String LOCATION_KEY = "location-key";
@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity implements
         mMainFragment = new MainFragment();
         mLocationTracker = new LocationTracker();
 
+        mMainFragment.mUsername = "John Doe";
+
         // Locate UI widgets
         mMainFragment.mLocationDisplay = (TextView) findViewById(R.id.LatLngDisplay);
         mMainFragment.mUserNameDisplay = (TextView) findViewById(R.id.usernameDisplay);
@@ -57,13 +59,13 @@ public class MainActivity extends AppCompatActivity implements
         mMainFragment.mWebView = (WebView) findViewById(R.id.mapView);
 
         // Set labels
-        mMainFragment.mUserNameDisplay.setText(mMainFragment.mUsername);
+        //mMainFragment.mUserNameDisplay.setText(mMainFragment.mUsername);
         if (mLocationTracker == null) {
             mMainFragment.mLocationDisplay.setText("Fetching ...");
         } else {
             Location loc = mLocationTracker.getCurrentLocation();
             if (loc != null)
-            mMainFragment.mLocationDisplay.setText(loc.getLatitude() + ", " + loc.getLongitude());
+                mMainFragment.mLocationDisplay.setText(loc.getLatitude() + ", " + loc.getLongitude());
         }
 
         mRequestingLocationUpdates = false;
