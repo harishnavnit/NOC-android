@@ -29,16 +29,16 @@ import java.text.DateFormat;
 public class LocationTracker extends MainActivity {
 
     protected double mLat, mLng;
-    protected Location mLocation;
     protected String mLastUpdateTime;
+    protected Location mCurrentLocation;
     protected LocationRequest mLocationRequest;
 
     public LocationTracker() {
-        mLocation = getLastKnownLocation();
+        mCurrentLocation = getLastKnownLocation();
         mLastUpdateTime = "";
-        if (mLocation != null) {
-            mLat = mLocation.getLatitude();
-            mLng = mLocation.getLongitude();
+        if (mCurrentLocation != null) {
+            mLat = mCurrentLocation.getLatitude();
+            mLng = mCurrentLocation.getLongitude();
         }
         createLocationRequest();
         getCurrentLocationSettingsRequest();
@@ -70,32 +70,12 @@ public class LocationTracker extends MainActivity {
     @Override
     public void onStart() {
         super.onStart();
-
         mGoogleApiClient.connect();
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Tracking Location", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse(null)
-        );
-        AppIndex.AppIndexApi.start(mGoogleApiClient, viewAction);
     }
 
     @Override
     public void onStop() {
         super.onStop();
-
-        Action viewAction = Action.newAction(
-                Action.TYPE_VIEW, // TODO: choose an action type.
-                "Tracking Location", // TODO: Define a title for the content shown.
-                // TODO: If you have web page content that matches this app activity's content,
-                // make sure this auto-generated web page URL is correct.
-                // Otherwise, set the URL to null.
-                Uri.parse(null)
-        );
-        AppIndex.AppIndexApi.end(mGoogleApiClient, viewAction);
         mGoogleApiClient.disconnect();
     }
 
@@ -104,21 +84,19 @@ public class LocationTracker extends MainActivity {
     }
 
     public void startLocationUpdates() {
-        LocationServices.FusedLocationApi.requestLocationUpdates(
-                mGoogleApiClient, mLocationRequest, (LocationListener)this
-        );
+        LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
 
     public void handleLocationChange(Location location) {
-        mLocation = location;
+        mCurrentLocation = location;
         mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
     }
 
     public void stopLocationUpdates() {
-        //LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener)this);
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener)this);
     }
 
     public Location getCurrentLocation() {
-        return mLocation;
+        return mCurrentLocation;
     }
 }

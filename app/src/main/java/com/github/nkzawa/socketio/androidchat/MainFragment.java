@@ -29,17 +29,19 @@ import org.json.JSONObject;
 public class MainFragment extends Fragment {
 
     // Private data
-    private Socket mSocket;
-    private WebView mWebView;
-    private String mUsername;
+    protected Socket mSocket;
+    protected WebView mWebView;
+    protected String mUsername;
+    protected boolean mLocationButtonPressed;
+    protected int mLocationButtonPressedCount;
 
     // UI widgets
-    private Button mLocationButton;
-    private TextView mLocationDisplay, mUserNameDisplay;
+    protected static Button mLocationButton;
+    protected static TextView mLocationDisplay, mUserNameDisplay;
 
     // Static data
-    private static ApplicationManager mApp;
-    private static final int REQUEST_LOGIN = 0;
+    protected static ApplicationManager mApp;
+    protected static final int REQUEST_LOGIN = 0;
 
     public MainFragment() {
         super();
@@ -88,27 +90,13 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        mLocationDisplay = (TextView) view.findViewById(R.id.LatLngDisplay);
-        mUserNameDisplay = (TextView) view.findViewById(R.id.usernameDisplay);
-        mUserNameDisplay.setText(mUsername);
-
-        // Activate the WebView
-        mWebView = (WebView) view.findViewById(R.id.mapView);
-        mWebView.loadUrl(Constants.SERVER_URL);
-        WebSettings settings = mWebView.getSettings();
-        settings.setJavaScriptEnabled(true);
-
-        // Handle the location button
+        mLocationButtonPressedCount = 1;
         mLocationButton = (Button) view.findViewById(R.id.locationButton);
         mLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                String lat, lng;
-                LocationTracker mlt = mApp.getLocationTracker();
-                Location current_location = mlt.getCurrentLocation();
-                lat = Double.toString(current_location.getLatitude());
-                lng = Double.toString(current_location.getLongitude());
-                mLocationDisplay.setText("{" + 0.0 + ", " + 0.0 + "}");
+                ++mLocationButtonPressedCount;
+                mLocationButtonPressed = (mLocationButtonPressedCount % 2 == 0);
             }
         });
     }
