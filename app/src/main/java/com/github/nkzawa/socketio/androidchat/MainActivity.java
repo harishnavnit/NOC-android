@@ -11,6 +11,7 @@ import android.util.Log;
 import android.view.View;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
+import android.webkit.WebViewClient;
 import android.widget.Button;
 import android.widget.TextView;
 
@@ -49,9 +50,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_main);
+        setContentView(R.layout.fragment_main);
 
-        if (mSwitchToNewFragment) showMainFragment();
+        if (mSwitchToNewFragment) setContentView(R.layout.fragment_main);
         MainFragment.mUsername = "John Doe";
 
         // Locate UI widgets
@@ -63,7 +64,9 @@ public class MainActivity extends AppCompatActivity implements
 
         // Set labels and variables
         //mMainFragment.mUserNameDisplay.setText(mMainFragment.mUsername);
-        webSettings.setJavaScriptEnabled(true);
+        MainFragment.mWebView.setWebViewClient(new WebViewClient());
+        MainFragment.mWebView.loadUrl(Constants.SERVER_URL);
+                webSettings.setJavaScriptEnabled(true);
         if (mLocationTracker == null) {
             MainFragment.mLocationDisplay.setText("Fetching ...");
         } else {

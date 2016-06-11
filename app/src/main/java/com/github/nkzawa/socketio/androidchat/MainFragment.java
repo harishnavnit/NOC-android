@@ -1,7 +1,9 @@
 package com.github.nkzawa.socketio.androidchat;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.content.Intent;
+import android.graphics.Color;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
@@ -14,6 +16,8 @@ import android.view.ViewGroup;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
+import android.widget.TableLayout;
+import android.widget.TableRow;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -32,6 +36,7 @@ public class MainFragment extends Fragment {
     protected static Socket mSocket;
     protected static WebView mWebView;
     protected static String mUsername;
+    protected static TableLayout mProximityTable;
     protected static boolean mLocationButtonPressed;
     protected static int mLocationButtonPressedCount;
 
@@ -66,6 +71,8 @@ public class MainFragment extends Fragment {
             mSocket.on("user left", onUserLeft);
         mApp.getSocketConnection().establishConnection();
         startSignIn();
+
+
     }
 
     @Override
@@ -90,8 +97,12 @@ public class MainFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
+        // Find the UI widgets
         mLocationButtonPressedCount = 1;
         mLocationButton = (Button) view.findViewById(R.id.locationButton);
+        //mProximityTable = (TableLayout) view.findViewById(R.id.proximityTable);
+        //formProximityTableHeaders();
+
         mLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -249,5 +260,27 @@ public class MainFragment extends Fragment {
             });
         }
     };
+
+    public void formProximityTableHeaders() {
+        // Form the table header
+        TableRow header = new TableRow(getContext());
+        header.setBackgroundColor(Color.DKGRAY);
+        header.setLayoutParams(new ActionBar.LayoutParams(
+                ViewGroup.LayoutParams.MATCH_PARENT,
+                ViewGroup.LayoutParams.WRAP_CONTENT
+        ));
+
+        // Prepare columns to be added to the table header
+        TextView firstColumn, secondColumn, thirdColumn;
+        firstColumn = new TextView(getContext()); firstColumn.setText("Username/Device Id"); firstColumn.setPadding(1, 1, 1, 1);
+        secondColumn = new TextView(getContext()); secondColumn.setText("Distance"); secondColumn.setPadding(1, 1, 1, 1);
+        thirdColumn = new TextView(getContext()); thirdColumn.setText("Severity"); thirdColumn.setPadding(1, 1, 1, 1);
+
+        // Insert columns into the table header
+        header.addView(firstColumn); header.addView(secondColumn); header.addView(thirdColumn);
+
+        // Add the header row to the table layout
+        mProximityTable.addView(header, new TableLayout.LayoutParams(TableLayout.LayoutParams.MATCH_PARENT, TableLayout.LayoutParams.WRAP_CONTENT));
+    }
 }
 

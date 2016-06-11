@@ -4,7 +4,8 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        tools:context=".MainFragment">
+        tools:context=".MainFragment"
+    android:visibility="visible">
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -24,18 +25,42 @@
 
             <Space
                 android:layout_width="wrap_content"
-                android:layout_height="63dp"
-                android:layout_weight="0.96" />
+                android:layout_height="match_parent"
+                android:layout_weight="0.50" />
+
+            <Button
+                style="?android:attr/buttonStyleSmall"
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:text="Locate"
+                android:id="@+id/locationButton" />
+
+            <Space
+                android:layout_width="wrap_content"
+                android:layout_height="match_parent"
+                android:layout_weight="0.50" />
 
             <TextView
-                android:layout_width="94dp"
-                android:layout_height="42dp"
+                android:layout_width="wrap_content"
+                android:layout_height="33dp"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Fetching ..."
+                android:text="Fetching"
                 android:id="@+id/LatLngDisplay" />
         </LinearLayout>
 
-    <SlidingDrawer
+    <!--<TableLayout
+        android:layout_width="match_parent"
+        android:layout_height="302dp"
+        android:layout_gravity="center_horizontal"
+        android:id="@+id/proximityTable"
+        android:textAlignment="inherit" />-->
+
+    <WebView
+        android:layout_width="fill_parent"
+        android:layout_height="fill_parent"
+        android:id="@+id/mapView" />
+
+    <!--<SlidingDrawer
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:content="@+id/linearLayout"
@@ -50,28 +75,14 @@
             android:orientation="vertical"
             android:weightSum="1">
 
-            <WebView
-                android:layout_width="match_parent"
-                android:layout_height="0dp"
-                android:id="@+id/mapView"
-                android:layout_weight="0.98" />
-
-            <Button
-                style="?android:attr/buttonStyleSmall"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="Locate"
-                android:id="@+id/locationButton"
-                android:layout_gravity="center_horizontal" />
-
             <Button
                 android:id="@+id/button"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Handle"
+                android:text="Swipe"
                 android:layout_gravity="center_horizontal" />
         </LinearLayout>
 
-    </SlidingDrawer>
+    </SlidingDrawer>-->
 
 </LinearLayout>
