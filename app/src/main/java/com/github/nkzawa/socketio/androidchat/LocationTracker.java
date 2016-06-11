@@ -48,8 +48,8 @@ public class LocationTracker extends MainActivity {
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(10000);            // 10000 milliseconds or 10 seconds
+        mLocationRequest.setFastestInterval(5000);      // 5000 milliseconds or 5 seconds
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
     }
 
