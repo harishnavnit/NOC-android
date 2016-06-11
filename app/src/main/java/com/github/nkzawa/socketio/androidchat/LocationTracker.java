@@ -28,13 +28,14 @@ import java.text.DateFormat;
  */
 public class LocationTracker extends MainActivity {
 
-    protected double mLat, mLng;
-    protected String mLastUpdateTime;
-    protected Location mCurrentLocation;
-    protected LocationRequest mLocationRequest;
+    protected static double mLat, mLng;
+    protected static String mLastUpdateTime;
+    protected static Location mCurrentLocation;
+    protected static LocationRequest mLocationRequest;
 
+    /**
     public LocationTracker() {
-        mCurrentLocation = getLastKnownLocation();
+        mCurrentLocation = MainActivity.mLastLocation;
         mLastUpdateTime = "";
         if (mCurrentLocation != null) {
             mLat = mCurrentLocation.getLatitude();
@@ -43,6 +44,7 @@ public class LocationTracker extends MainActivity {
         createLocationRequest();
         getCurrentLocationSettingsRequest();
     }
+    */
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();

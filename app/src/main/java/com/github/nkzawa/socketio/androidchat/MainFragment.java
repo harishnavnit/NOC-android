@@ -29,11 +29,11 @@ import org.json.JSONObject;
 public class MainFragment extends Fragment {
 
     // Private data
-    protected Socket mSocket;
-    protected WebView mWebView;
-    protected String mUsername;
-    protected boolean mLocationButtonPressed;
-    protected int mLocationButtonPressedCount;
+    protected static Socket mSocket;
+    protected static WebView mWebView;
+    protected static String mUsername;
+    protected static boolean mLocationButtonPressed;
+    protected static int mLocationButtonPressedCount;
 
     // UI widgets
     protected static Button mLocationButton;

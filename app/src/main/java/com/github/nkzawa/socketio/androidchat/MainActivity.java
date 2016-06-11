@@ -1,11 +1,15 @@
 package com.github.nkzawa.socketio.androidchat;
 
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.location.Location;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.util.Log;
 import android.view.View;
+import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -32,6 +36,7 @@ public class MainActivity extends AppCompatActivity implements
     protected static LocationTracker mLocationTracker;
     protected static GoogleApiClient mGoogleApiClient;
     protected static boolean mRequestingLocationUpdates;
+    protected static boolean mSwitchToNewFragment;
 
     // Keys for storing activity states in bundle
     protected final static String LOCATION_KEY = "location-key";
@@ -40,36 +45,35 @@ public class MainActivity extends AppCompatActivity implements
 
     // Access to UI widgets
     protected MainFragment mMainFragment;
-    protected LoginActivity mLoginActivity;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        mMainFragment = new MainFragment();
-        mLocationTracker = new LocationTracker();
-
-        mMainFragment.mUsername = "John Doe";
+        if (mSwitchToNewFragment) showMainFragment();
+        MainFragment.mUsername = "John Doe";
 
         // Locate UI widgets
-        mMainFragment.mLocationDisplay = (TextView) findViewById(R.id.LatLngDisplay);
-        mMainFragment.mUserNameDisplay = (TextView) findViewById(R.id.usernameDisplay);
-        mMainFragment.mLocationButton = (Button) findViewById(R.id.locationButton);
-        mMainFragment.mWebView = (WebView) findViewById(R.id.mapView);
+        MainFragment.mLocationDisplay = (TextView) findViewById(R.id.LatLngDisplay);
+        MainFragment.mUserNameDisplay = (TextView) findViewById(R.id.usernameDisplay);
+        MainFragment.mLocationButton = (Button) findViewById(R.id.locationButton);
+        MainFragment.mWebView = (WebView) findViewById(R.id.mapView);
+        WebSettings webSettings = MainFragment.mWebView.getSettings();
 
-        // Set labels
+        // Set labels and variables
         //mMainFragment.mUserNameDisplay.setText(mMainFragment.mUsername);
+        webSettings.setJavaScriptEnabled(true);
         if (mLocationTracker == null) {
-            mMainFragment.mLocationDisplay.setText("Fetching ...");
+            MainFragment.mLocationDisplay.setText("Fetching ...");
         } else {
             Location loc = mLocationTracker.getCurrentLocation();
             if (loc != null)
-                mMainFragment.mLocationDisplay.setText(loc.getLatitude() + ", " + loc.getLongitude());
+                MainFragment.mLocationDisplay.setText(loc.getLatitude() + ", " + loc.getLongitude());
         }
 
         mRequestingLocationUpdates = false;
-        mLocationTracker.mLastUpdateTime = "";
+        LocationTracker.mLastUpdateTime = "";
 
         // Update values from Bundle
         updateValuesFromBundle(savedInstanceState);
@@ -108,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements
 
 
     private void updateUi() {
-        if (mMainFragment.mLocationButtonPressed) {
+        if (MainFragment.mLocationButtonPressed) {
             if (!mRequestingLocationUpdates) {
                 mRequestingLocationUpdates = true;
                 mLocationTracker.startLocationUpdates();
@@ -119,8 +123,8 @@ public class MainActivity extends AppCompatActivity implements
                 mLocationTracker.stopLocationUpdates();
             }
         }
-        if (mLocationTracker.getCurrentLocation() != null)
-            mMainFragment.mLocationDisplay.setText(
+        if (LocationTracker.mCurrentLocation != null)
+            MainFragment.mLocationDisplay.setText(
                     mLocationTracker.getCurrentLocation().getLatitude() + ", " +
                             mLocationTracker.getCurrentLocation().getLongitude()
             );
@@ -156,9 +160,9 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onConnected(Bundle connectionHint) {
         Log.i(TAG, "Connected to GoogleApiClient");
-        if (mLocationTracker.mCurrentLocation == null) {
-            mLocationTracker.mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-            mLocationTracker.mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+        if (LocationTracker.mCurrentLocation == null) {
+            LocationTracker.mCurrentLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
+            LocationTracker.mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
             updateUi();
         }
         if (mRequestingLocationUpdates) {
@@ -191,16 +195,23 @@ public class MainActivity extends AppCompatActivity implements
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         savedInstanceState.putBoolean(REQUESTING_LOCATION_UPDATES_KEY, mRequestingLocationUpdates);
-        savedInstanceState.putParcelable(LOCATION_KEY, mLocationTracker.mCurrentLocation);
-        savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, mLocationTracker.mLastUpdateTime);
+        savedInstanceState.putParcelable(LOCATION_KEY, LocationTracker.mCurrentLocation);
+        savedInstanceState.putString(LAST_UPDATED_TIME_STRING_KEY, LocationTracker.mLastUpdateTime);
         super.onSaveInstanceState(savedInstanceState);
     }
 
-    public GoogleApiClient getApiClient() {
-        return mGoogleApiClient;
-    }
-
-    public Location getLastKnownLocation() {
-        return mLastLocation;
+    public void showMainFragment() {
+        FragmentManager fm = getFragmentManager();
+        FragmentTransaction ft = fm.beginTransaction();
+        Fragment mf =  fm.findFragmentByTag("fragment_main");
+        if (mf == null) {
+            mf = new Fragment();
+            ft.add(R.id.mainFrag, mf, "fragment_main");
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_OPEN);
+        } else {
+            ft.remove(mf);
+            ft.setTransition(FragmentTransaction.TRANSIT_FRAGMENT_CLOSE);
+        }
+        ft.commit();
     }
 }

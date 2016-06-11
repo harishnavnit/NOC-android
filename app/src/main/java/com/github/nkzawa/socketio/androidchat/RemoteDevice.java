@@ -23,7 +23,7 @@ public class RemoteDevice {
         username = "";  password = "";
         loginHash = generateLoginHash(password);
         mLocationTracker = MainActivity.mLocationTracker;
-        userLocation = mLocationTracker.mCurrentLocation;
+        userLocation = LocationTracker.mCurrentLocation;
     }
 
     /**
@@ -35,7 +35,7 @@ public class RemoteDevice {
         username = user;    password = pass;
         loginHash = generateLoginHash(pass);
         mLocationTracker = MainActivity.mLocationTracker;
-        userLocation = mLocationTracker.mCurrentLocation;
+        userLocation = LocationTracker.mCurrentLocation;
     }
 
     /**

@@ -1,6 +1,9 @@
 package com.github.nkzawa.socketio.androidchat;
 
 import android.app.Activity;
+import android.app.Fragment;
+import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
@@ -23,11 +26,12 @@ import org.json.JSONObject;
  */
 public class LoginActivity extends FragmentActivity {
 
-    private boolean loginStatus;
-    private RemoteDevice remoteDevice;
     private Socket mSocket;
     private ApplicationManager app;
-    private EditText mUsernameView, mPasswordView;
+    private RemoteDevice remoteDevice;
+    protected static boolean mLoginStatus;
+    protected String mUsername, mPassword;
+    protected EditText mUsernameView, mPasswordView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -44,8 +48,7 @@ public class LoginActivity extends FragmentActivity {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == R.id.login || id == EditorInfo.IME_NULL) {
-                    loginStatus = attemptLogin();
-                    return true;
+                    return attemptLogin();
                 }
                 return false;
             }
@@ -55,20 +58,44 @@ public class LoginActivity extends FragmentActivity {
         signInButton.setOnClickListener(new OnClickListener() {
             @Override
             public void onClick(View view) {
-                loginStatus = attemptLogin();
-                if (loginStatus) {
-                    setContentView(R.layout.fragment_main);
-                    try {
-                        app.playAlert();
-                    } catch (Exception e) {
-                        e.printStackTrace();
-                    }
+                MainActivity.mSwitchToNewFragment = attemptLogin();
+                if (MainActivity.mSwitchToNewFragment) {
+                    System.out.println("mSwitchToNewFragment set to True");
+                    //FIXME: Implement this alert elsewhere
+                    try { app.playAlert();}
+                    catch(Exception e) {e.printStackTrace();}
+                } else {
+                    System.out.println("mSwitchToNewFragment set to false");
+                    attemptLogin();
                 }
-                else attemptLogin();
             }
         });
 
+        // Switch back to the Main Activity
+        // Check the SwitchToNewFragment there and respond
+        if (MainActivity.mSwitchToNewFragment) {
+                System.out.println("Preparing intenet to switch to new activity/fragment");
+            Intent intent = getParentActivityIntent();
+            startActivity(intent);
+                System.out.println("Requested to startActivity with intent");
+        }
+
         mSocket.on("login", onLogin);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        mUsername = mUsernameView.getText().toString();
+        mPassword = mPasswordView.getText().toString();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (mUsernameView != null && mUsername != null)     mUsernameView.setText(mUsername);
+        if (mPasswordView != null && mPassword != null)     mPasswordView.setText(mPassword);
     }
 
     @Override
