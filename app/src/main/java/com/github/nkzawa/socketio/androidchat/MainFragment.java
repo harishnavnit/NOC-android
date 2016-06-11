@@ -100,9 +100,6 @@ public class MainFragment extends Fragment {
         // Find the UI widgets
         mLocationButtonPressedCount = 1;
         mLocationButton = (Button) view.findViewById(R.id.locationButton);
-        //mProximityTable = (TableLayout) view.findViewById(R.id.proximityTable);
-        //formProximityTableHeaders();
-
         mLocationButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {

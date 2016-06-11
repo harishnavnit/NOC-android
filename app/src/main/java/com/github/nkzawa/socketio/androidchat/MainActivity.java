@@ -52,7 +52,6 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_main);
 
-        if (mSwitchToNewFragment) setContentView(R.layout.fragment_main);
         MainFragment.mUsername = "John Doe";
 
         // Locate UI widgets
@@ -63,16 +62,19 @@ public class MainActivity extends AppCompatActivity implements
         WebSettings webSettings = MainFragment.mWebView.getSettings();
 
         // Set labels and variables
-        //mMainFragment.mUserNameDisplay.setText(mMainFragment.mUsername);
+        MainFragment.mUserNameDisplay.setText(MainFragment.mUsername);
         MainFragment.mWebView.setWebViewClient(new WebViewClient());
         MainFragment.mWebView.loadUrl(Constants.SERVER_URL);
-                webSettings.setJavaScriptEnabled(true);
+        webSettings.setJavaScriptEnabled(true);
         if (mLocationTracker == null) {
             MainFragment.mLocationDisplay.setText("Fetching ...");
         } else {
-            Location loc = mLocationTracker.getCurrentLocation();
-            if (loc != null)
-                MainFragment.mLocationDisplay.setText(loc.getLatitude() + ", " + loc.getLongitude());
+            Location loc = LocationTracker.mCurrentLocation;
+            if (LocationTracker.mCurrentLocation != null)
+                MainFragment.mLocationDisplay.setText(
+                        LocationTracker.mCurrentLocation.getLatitude() + ", " +
+                        LocationTracker.mCurrentLocation.getLongitude()
+                );
         }
 
         mRequestingLocationUpdates = false;
@@ -94,10 +96,10 @@ public class MainActivity extends AppCompatActivity implements
                 mRequestingLocationUpdates = savedInstanceState.getBoolean(REQUESTING_LOCATION_UPDATES_KEY);
             }
             if (savedInstanceState.keySet().contains(LOCATION_KEY)) {
-                mLocationTracker.mCurrentLocation = savedInstanceState.getParcelable(LOCATION_KEY);
+                LocationTracker.mCurrentLocation = savedInstanceState.getParcelable(LOCATION_KEY);
             }
             if (savedInstanceState.keySet().contains(LAST_UPDATED_TIME_STRING_KEY)) {
-                mLocationTracker.mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
+                LocationTracker.mLastUpdateTime = savedInstanceState.getString(LAST_UPDATED_TIME_STRING_KEY);
             }
             updateUi();
         }
@@ -128,8 +130,8 @@ public class MainActivity extends AppCompatActivity implements
         }
         if (LocationTracker.mCurrentLocation != null)
             MainFragment.mLocationDisplay.setText(
-                    mLocationTracker.getCurrentLocation().getLatitude() + ", " +
-                            mLocationTracker.getCurrentLocation().getLongitude()
+                LocationTracker.mCurrentLocation.getLatitude() + ", " +
+                LocationTracker.mCurrentLocation.getLongitude()
             );
     }
 
@@ -203,6 +205,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onSaveInstanceState(savedInstanceState);
     }
 
+    /**
+     * Logic to switch to a new fragment
+     */
     public void showMainFragment() {
         FragmentManager fm = getFragmentManager();
         FragmentTransaction ft = fm.beginTransaction();
