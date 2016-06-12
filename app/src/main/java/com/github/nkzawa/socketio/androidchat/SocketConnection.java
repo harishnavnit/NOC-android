@@ -9,42 +9,61 @@ import io.socket.client.Socket;
  * Created by harish on 05/06/16.
  */
 public class SocketConnection {
-    private static Socket sock;
-    private static boolean connected;
+    protected static Socket mSocket;
+    protected static boolean mConnected;
 
     SocketConnection() {
-        if (! connected ) establishConnection();
+        if (! mConnected ) establishConnection();
     }
 
     public boolean isConnected() {
-        return connected;
+        return mConnected;
     }
+
     public boolean establishConnection() {
         {
             try {
-                sock = IO.socket(Constants.SERVER_URL);
-                sock.connect();
-                connected = true;
+                mSocket = IO.socket(Constants.SERVER_URL);
+                mSocket.connect();
+                mConnected = true;
                 System.out.println("Connection established from SocketConnection");
             } catch (URISyntaxException e) {
                 System.err.println("Failed to establish connection from ApplicationManager");
                 e.printStackTrace();
-                connected = false;
+                mConnected = false;
                 throw new RuntimeException(e);
             }
         }
-        return connected;
+        return mConnected;
     }
 
     public Socket getSocket() {
-        return sock;
+        return mSocket;
     }
 
     public boolean closeConnection() {
-        if (connected) {
-            sock.disconnect();
-            connected = false;
+        if (mConnected) {
+            mSocket.disconnect();
+            mConnected = false;
         }
-        return connected;
+        return mConnected;
+    }
+
+    public void sendCurrentLocation() {
+        double lat, lng;
+        if (LocationTracker.mCurrentLocation != null) {
+            lat = LocationTracker.mCurrentLocation.getLatitude();
+            lng = LocationTracker.mCurrentLocation.getLongitude();
+        } else {
+            System.err.println("Unable to fetch current location");
+            lat = 0.0;  lng = 0.0;
+        }
+        System.out.println("Emitting data to source");
+        mSocket.emit("Latitude", lat);
+        mSocket.emit("Longitude", lng);
+    }
+
+    public void receiveNewLocation() {
+
     }
 }

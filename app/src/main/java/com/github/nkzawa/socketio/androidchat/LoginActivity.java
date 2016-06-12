@@ -74,10 +74,8 @@ public class LoginActivity extends FragmentActivity {
         // Switch back to the Main Activity
         // Check the SwitchToNewFragment there and respond
         if (MainActivity.mSwitchToNewFragment) {
-                System.out.println("Preparing intenet to switch to new activity/fragment");
             Intent intent = getParentActivityIntent();
             startActivity(intent);
-                System.out.println("Requested to startActivity with intent");
         }
 
         mSocket.on("login", onLogin);

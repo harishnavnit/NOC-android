@@ -28,23 +28,43 @@ import java.text.DateFormat;
  */
 public class LocationTracker extends MainActivity {
 
-    protected static double mLat, mLng;
     protected static String mLastUpdateTime;
     protected static Location mCurrentLocation;
     protected static LocationRequest mLocationRequest;
 
-    /**
     public LocationTracker() {
-        mCurrentLocation = MainActivity.mLastLocation;
         mLastUpdateTime = "";
-        if (mCurrentLocation != null) {
-            mLat = mCurrentLocation.getLatitude();
-            mLng = mCurrentLocation.getLongitude();
-        }
         createLocationRequest();
         getCurrentLocationSettingsRequest();
     }
-    */
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        mGoogleApiClient.connect();
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mGoogleApiClient.disconnect();
+    }
 
     protected void createLocationRequest() {
         mLocationRequest = new LocationRequest();
@@ -62,29 +82,6 @@ public class LocationTracker extends MainActivity {
         }
     }
 
-    @Override
-    protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
-        mGoogleApiClient = new GoogleApiClient.Builder(this).addApi(AppIndex.API).build();
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        mGoogleApiClient.connect();
-    }
-
-    @Override
-    public void onStop() {
-        super.onStop();
-        mGoogleApiClient.disconnect();
-    }
-
-    public LocationRequest getCurrentLocationRequest() {
-        return mLocationRequest;
-    }
-
     public void startLocationUpdates() {
         LocationServices.FusedLocationApi.requestLocationUpdates(mGoogleApiClient, mLocationRequest, this);
     }
@@ -95,10 +92,6 @@ public class LocationTracker extends MainActivity {
     }
 
     public void stopLocationUpdates() {
-        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener)this);
-    }
-
-    public Location getCurrentLocation() {
-        return mCurrentLocation;
+        LocationServices.FusedLocationApi.removeLocationUpdates(mGoogleApiClient, (LocationListener) this);
     }
 }

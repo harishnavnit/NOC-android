@@ -71,8 +71,7 @@ public class MainFragment extends Fragment {
             mSocket.on("user left", onUserLeft);
         mApp.getSocketConnection().establishConnection();
         startSignIn();
-
-
+        attemptSend();
     }
 
     @Override
@@ -156,11 +155,13 @@ public class MainFragment extends Fragment {
     }
 
     private void attemptSend() {
-        if (null == mUsername) return;
+        System.out.println("MainFragment::attemptSend()");
         if (!mSocket.connected()) return;
 
+        System.out.println("attemptSend() -- sending");
         // perform the sending message attempt.
-        //mSocket.emit("new message", message);
+        mSocket.emit("Latitude", LocationTracker.mCurrentLocation.getLatitude());
+        mSocket.emit("Longitude",LocationTracker.mCurrentLocation.getLongitude());
     }
 
     private void startSignIn() {

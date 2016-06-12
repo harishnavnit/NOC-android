@@ -33,25 +33,26 @@ public class MainActivity extends AppCompatActivity implements
 
     protected static final String TAG = "location-updates";
 
-    protected static Location mLastLocation;
-    protected static LocationTracker mLocationTracker;
+    protected static boolean mSwitchToNewFragment;
     protected static GoogleApiClient mGoogleApiClient;
     protected static boolean mRequestingLocationUpdates;
-    protected static boolean mSwitchToNewFragment;
 
     // Keys for storing activity states in bundle
     protected final static String LOCATION_KEY = "location-key";
     protected final static String LAST_UPDATED_TIME_STRING_KEY = "last-updated-time-string-key";
     protected final static String REQUESTING_LOCATION_UPDATES_KEY = "requesting-location-updates-key";
 
-    // Access to UI widgets
-    protected MainFragment mMainFragment;
+    // Other classes
+    protected SocketConnection mSocketConnection;
+    protected static LocationTracker mLocationTracker;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_main);
 
+        mSocketConnection = new SocketConnection();
+        mSocketConnection.sendCurrentLocation();
         MainFragment.mUsername = "John Doe";
 
         // Locate UI widgets
@@ -72,7 +73,7 @@ public class MainActivity extends AppCompatActivity implements
             Location loc = LocationTracker.mCurrentLocation;
             if (LocationTracker.mCurrentLocation != null)
                 MainFragment.mLocationDisplay.setText(
-                        LocationTracker.mCurrentLocation.getLatitude() + ", " +
+                        LocationTracker.mCurrentLocation.getLatitude() + "\n" +
                         LocationTracker.mCurrentLocation.getLongitude()
                 );
         }
@@ -115,7 +116,6 @@ public class MainActivity extends AppCompatActivity implements
         mLocationTracker.createLocationRequest();
     }
 
-
     private void updateUi() {
         if (MainFragment.mLocationButtonPressed) {
             if (!mRequestingLocationUpdates) {
@@ -130,9 +130,11 @@ public class MainActivity extends AppCompatActivity implements
         }
         if (LocationTracker.mCurrentLocation != null)
             MainFragment.mLocationDisplay.setText(
-                LocationTracker.mCurrentLocation.getLatitude() + ", " +
+                LocationTracker.mCurrentLocation.getLatitude() + "\n" +
                 LocationTracker.mCurrentLocation.getLongitude()
             );
+
+
     }
 
     @Override
