@@ -51,8 +51,9 @@ public class MainActivity extends AppCompatActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fragment_main);
 
+        mLocationTracker = new LocationTracker();
         mSocketConnection = new SocketConnection();
-        mSocketConnection.sendCurrentLocation();
+        //mSocketConnection.sendCurrentLocation();
         MainFragment.mUsername = "John Doe";
 
         // Locate UI widgets
@@ -64,26 +65,16 @@ public class MainActivity extends AppCompatActivity implements
 
         // Set labels and variables
         MainFragment.mUserNameDisplay.setText(MainFragment.mUsername);
+        MainFragment.mLocationDisplay.setText("Fetching ...");
         MainFragment.mWebView.setWebViewClient(new WebViewClient());
         MainFragment.mWebView.loadUrl(Constants.SERVER_URL);
         webSettings.setJavaScriptEnabled(true);
-        if (mLocationTracker == null) {
-            MainFragment.mLocationDisplay.setText("Fetching ...");
-        } else {
-            Location loc = LocationTracker.mCurrentLocation;
-            if (LocationTracker.mCurrentLocation != null)
-                MainFragment.mLocationDisplay.setText(
-                        LocationTracker.mCurrentLocation.getLatitude() + "\n" +
-                        LocationTracker.mCurrentLocation.getLongitude()
-                );
-        }
 
         mRequestingLocationUpdates = false;
         LocationTracker.mLastUpdateTime = "";
 
         // Update values from Bundle
         updateValuesFromBundle(savedInstanceState);
-        mLocationTracker = new LocationTracker();
         buildGoogleApiClient();
     }
 
@@ -128,13 +119,22 @@ public class MainActivity extends AppCompatActivity implements
                 mLocationTracker.stopLocationUpdates();
             }
         }
-        if (LocationTracker.mCurrentLocation != null)
+        if (LocationTracker.mCurrentLocation != null) {
+            // DEBUG
+            System.out.println(
+                "MainActivity::updateUi()\n" +  "Current Location = [" +
+                LocationTracker.mCurrentLocation.getLatitude() + ", " +
+                LocationTracker.mCurrentLocation.getLongitude() + "]"
+            );
             MainFragment.mLocationDisplay.setText(
                 LocationTracker.mCurrentLocation.getLatitude() + "\n" +
                 LocationTracker.mCurrentLocation.getLongitude()
             );
-
-
+            mSocketConnection.sendCurrentLocation(
+                LocationTracker.mCurrentLocation.getLatitude(),
+                LocationTracker.mCurrentLocation.getLongitude()
+            );
+        }
     }
 
     @Override

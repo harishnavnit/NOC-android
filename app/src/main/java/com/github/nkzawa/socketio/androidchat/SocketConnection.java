@@ -49,15 +49,7 @@ public class SocketConnection {
         return mConnected;
     }
 
-    public void sendCurrentLocation() {
-        double lat, lng;
-        if (LocationTracker.mCurrentLocation != null) {
-            lat = LocationTracker.mCurrentLocation.getLatitude();
-            lng = LocationTracker.mCurrentLocation.getLongitude();
-        } else {
-            System.err.println("Unable to fetch current location");
-            lat = 0.0;  lng = 0.0;
-        }
+    public void sendCurrentLocation(double lat, double lng) {
         System.out.println("Emitting data to source");
         mSocket.emit("Latitude", lat);
         mSocket.emit("Longitude", lng);
